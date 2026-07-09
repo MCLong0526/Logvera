@@ -8,6 +8,7 @@ import { useConfirmStore } from '../stores/confirm'
 import Spinner from '../components/Spinner.vue'
 import Avatar from '../components/Avatar.vue'
 import Icon from '../components/Icon.vue'
+import { formatDate } from '../utils/labels'
 
 const route = useRoute()
 const auth = useAuthStore()
@@ -105,68 +106,106 @@ onMounted(load)
 <template>
   <Spinner v-if="loading" />
   <div v-else-if="board">
-    <div class="mb-5 flex flex-wrap items-start justify-between gap-3">
+    <!-- Header — spec-sheet strip -->
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div>
-        <router-link :to="{ name: 'taskit' }" class="inline-flex items-center gap-1 text-sm text-stone-400 hover:text-brand-600"><Icon name="back" class="h-4 w-4" />Task It</router-link>
-        <h1 class="mt-1 text-2xl font-bold tracking-tight text-ink">{{ board.name }}</h1>
+        <router-link :to="{ name: 'taskit' }" class="inline-flex items-center gap-1 text-sm text-stone-400 transition-colors hover:text-accent">
+          <Icon name="back" class="h-4 w-4" />Task It
+        </router-link>
+        <div class="mt-1 flex flex-wrap items-baseline gap-3">
+          <h1 class="text-2xl font-bold tracking-tight text-ink">{{ board.name }}</h1>
+          <span class="font-mono text-[11px] tracking-wider text-stone-400">BRD-{{ String(board.id).padStart(2, '0') }}</span>
+        </div>
+        <p class="mt-1 font-mono text-[11px] uppercase tracking-widest text-stone-400">
+          {{ cards.length }} cards · opened {{ formatDate(board.created_at) }}
+        </p>
       </div>
-      <div class="flex items-center -space-x-1.5">
-        <Avatar v-for="m in board.members" :key="m.id" :name="m.name" :src="m.avatar" size="md" class="ring-2 ring-paper" />
+      <div class="flex items-center gap-3">
+        <div class="flex items-center -space-x-1.5">
+          <Avatar v-for="m in board.members" :key="m.id" :name="m.name" :src="m.avatar" size="md" class="ring-2 ring-paper" />
+        </div>
+        <span class="font-mono text-xs text-stone-400">{{ board.members.length }}</span>
       </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-      <div
+    <!-- Stages — always left → right; scrolls horizontally when narrow -->
+    <div class="stagger flex gap-4 overflow-x-auto pb-3">
+      <section
         v-for="stage in STAGES"
         :key="stage.key"
-        class="rounded-lg border bg-brand-50/60 p-3 transition-colors"
-        :class="overStage === stage.key ? 'border-ink' : 'border-line'"
+        class="flex min-h-[24rem] w-[19rem] shrink-0 flex-col rounded-lg border bg-brand-50/70 transition-all duration-150 md:w-auto md:flex-1"
+        :class="overStage === stage.key ? 'border-ink shadow-lift' : 'border-line'"
         @dragover.prevent="overStage = stage.key"
         @dragleave="overStage === stage.key && (overStage = null)"
         @drop.prevent="onDrop(stage.key)"
       >
-        <div class="mb-3 flex items-center gap-2">
+        <!-- Column header — ledger rule -->
+        <header class="flex items-center gap-2 border-b border-line px-3 py-2.5">
           <span class="h-2 w-2 rounded-full" :class="stage.dot" />
-          <h2 class="font-mono text-[11px] font-medium uppercase tracking-wider text-stone-500">{{ stage.label }}</h2>
-          <span class="ml-auto font-mono text-xs text-stone-400">{{ columns[stage.key].length }}</span>
-        </div>
+          <h2 class="font-mono text-[11px] font-medium uppercase tracking-widest text-stone-500">{{ stage.label }}</h2>
+          <span class="ml-auto rounded-full bg-surface px-2 py-0.5 font-mono text-[11px] tabular-nums text-stone-500 ring-1 ring-line">
+            {{ String(columns[stage.key].length).padStart(2, '0') }}
+          </span>
+        </header>
 
-        <!-- Quick-add: new cards always start in Assigned Task -->
-        <form v-if="stage.key === 'assigned'" class="mb-2 flex gap-1.5" @submit.prevent="addCard">
-          <input v-model="newTitle" class="input !py-1.5 text-sm" placeholder="Add a task…" :disabled="adding" />
-          <button type="submit" class="btn-primary !px-2.5 !py-1.5" :disabled="adding"><Icon name="plus" class="h-4 w-4" /></button>
-        </form>
+        <div class="flex-1 space-y-2 p-2.5">
+          <!-- Quick-add: new cards always start in Assigned Task -->
+          <form v-if="stage.key === 'assigned'" class="flex gap-1.5" @submit.prevent="addCard">
+            <input v-model="newTitle" class="input !bg-surface !py-1.5 text-sm" placeholder="Add a task…" :disabled="adding" />
+            <button type="submit" class="btn-primary !px-2.5 !py-1.5" :disabled="adding" title="Add to Assigned Task">
+              <Icon name="plus" class="h-4 w-4" />
+            </button>
+          </form>
 
-        <div class="min-h-[8rem] space-y-2">
+          <TransitionGroup name="kanban">
+            <article
+              v-for="card in columns[stage.key]"
+              :key="card.id"
+              class="card group cursor-grab select-none p-3 transition-all duration-150 hover:shadow-lift active:cursor-grabbing"
+              :class="{ 'rotate-2 opacity-50 shadow-lift': dragging?.id === card.id }"
+              draggable="true"
+              @dragstart="onDragStart(card)"
+              @dragend="onDragEnd"
+              @drop.prevent.stop="onDrop(stage.key, card)"
+              @dragover.prevent
+            >
+              <div class="flex items-start justify-between gap-2">
+                <span class="font-mono text-[10px] tracking-wider text-stone-300">#{{ String(card.id).padStart(3, '0') }}</span>
+                <button
+                  v-if="card.creator?.id === auth.user?.id || board.is_owner"
+                  class="hidden shrink-0 text-stone-300 transition-colors hover:text-red-500 group-hover:block"
+                  title="Delete card"
+                  @click="removeCard(card)"
+                ><Icon name="close" class="h-4 w-4" /></button>
+              </div>
+              <p class="mt-0.5 break-words text-sm font-medium leading-snug text-ink">{{ card.title }}</p>
+              <div class="mt-2.5 flex items-center justify-between gap-2 border-t border-line/70 pt-2">
+                <span class="flex min-w-0 items-center gap-1.5 text-xs text-stone-400">
+                  <Avatar :name="card.creator?.name" :src="card.creator?.avatar" size="sm" />{{ card.creator?.name }}
+                </span>
+                <span class="shrink-0 whitespace-nowrap font-mono text-[10px] tabular-nums text-stone-300">{{ formatDate(card.created_at) }}</span>
+              </div>
+            </article>
+          </TransitionGroup>
+
+          <!-- Empty drop target -->
           <div
-            v-for="card in columns[stage.key]"
-            :key="card.id"
-            class="card group cursor-grab p-3 active:cursor-grabbing"
-            :class="{ 'opacity-40': dragging?.id === card.id }"
-            draggable="true"
-            @dragstart="onDragStart(card)"
-            @dragend="onDragEnd"
-            @drop.prevent.stop="onDrop(stage.key, card)"
-            @dragover.prevent
+            v-if="!columns[stage.key].length"
+            class="rounded-md border-2 border-dashed py-8 text-center font-mono text-[11px] uppercase tracking-widest transition-colors"
+            :class="overStage === stage.key ? 'border-ink text-ink' : 'border-line text-stone-300'"
           >
-            <div class="flex items-start justify-between gap-2">
-              <p class="break-words text-sm font-medium text-stone-800">{{ card.title }}</p>
-              <button
-                v-if="card.creator?.id === auth.user?.id || board.is_owner"
-                class="hidden shrink-0 text-stone-300 hover:text-red-500 group-hover:block"
-                @click="removeCard(card)"
-              ><Icon name="close" class="h-4 w-4" /></button>
-            </div>
-            <div class="mt-2 flex items-center gap-1.5">
-              <Avatar :name="card.creator?.name" :src="card.creator?.avatar" size="sm" />
-              <span class="text-xs text-stone-400">{{ card.creator?.name }}</span>
-            </div>
+            {{ stage.key === 'assigned' ? 'No tasks yet' : 'Drop cards here' }}
           </div>
-          <p v-if="!columns[stage.key].length" class="py-6 text-center text-xs text-stone-400">
-            {{ stage.key === 'assigned' ? 'No tasks yet.' : 'Drag cards here.' }}
-          </p>
         </div>
-      </div>
+      </section>
     </div>
   </div>
 </template>
+
+<style scoped>
+/* Cards glide when a drop reshuffles a column. */
+.kanban-move { transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+.kanban-enter-active { transition: opacity 0.2s ease, transform 0.2s ease; }
+.kanban-enter-from { opacity: 0; transform: translateY(4px); }
+.kanban-leave-active { display: none; }
+</style>

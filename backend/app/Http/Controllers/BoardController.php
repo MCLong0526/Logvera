@@ -14,7 +14,12 @@ class BoardController extends Controller
         $boards = Board::query()
             ->whereHas('members', fn ($q) => $q->where('users.id', $request->user()->id))
             ->with('owner')
-            ->withCount(['members', 'cards'])
+            ->withCount([
+                'members', 'cards',
+                'cards as assigned_count' => fn ($q) => $q->where('stage', 'assigned'),
+                'cards as in_progress_count' => fn ($q) => $q->where('stage', 'in_progress'),
+                'cards as closed_count' => fn ($q) => $q->where('stage', 'closed'),
+            ])
             ->latest()
             ->get();
 

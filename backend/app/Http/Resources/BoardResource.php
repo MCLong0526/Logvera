@@ -17,6 +17,11 @@ class BoardResource extends JsonResource
             'cards' => BoardCardResource::collection($this->whenLoaded('cards')),
             'members_count' => $this->whenCounted('members'),
             'cards_count' => $this->whenCounted('cards'),
+            'stage_counts' => $this->when(isset($this->assigned_count), fn () => [
+                'assigned' => $this->assigned_count,
+                'in_progress' => $this->in_progress_count,
+                'closed' => $this->closed_count,
+            ]),
             'is_owner' => $this->owner_id === $request->user()?->id,
             'created_at' => $this->created_at,
         ];
