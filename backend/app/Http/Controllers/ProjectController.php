@@ -63,7 +63,19 @@ class ProjectController extends Controller
     {
         $this->authorize('update', $project);
 
-        $project->update($request->validated());
+        $project->update($request->safe()->except('member_ids'));
+
+        // Checked list is the member list; the owner always stays owner.
+        if ($request->has('member_ids')) {
+            $members = collect($request->input('member_ids'))
+                ->map(fn ($id) => (int) $id)
+                ->reject(fn ($id) => $id === $project->owner_id)
+                ->unique()
+                ->mapWithKeys(fn ($id) => [$id => ['role' => 'member']])
+                ->all();
+
+            $project->members()->sync([$project->owner_id => ['role' => 'owner']] + $members);
+        }
 
         return new ProjectResource($project->load('owner')->loadCount(['members', 'tasks']));
     }

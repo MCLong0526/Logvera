@@ -43,10 +43,13 @@ function openCreate() {
   showModal.value = true
 }
 
-function openEdit(p) {
+async function openEdit(p) {
   editing.value = p
-  form.value = { name: p.name, description: p.description, status: p.status, due_date: p.due_date || '' }
+  form.value = { name: p.name, description: p.description, status: p.status, due_date: p.due_date || '', member_ids: [] }
   showModal.value = true
+  // Pre-check current members (owner is implicit and always kept).
+  const { data } = await http.get(`/projects/${p.id}/members`)
+  form.value.member_ids = data.data.filter((m) => m.role !== 'owner').map((m) => m.id)
 }
 
 async function save() {
@@ -136,8 +139,8 @@ onMounted(() => { load(); loadUsers() })
             <option value="archived">Archived</option>
           </select>
         </div>
-        <div v-else>
-          <label class="label">Add Members</label>
+        <div>
+          <label class="label">{{ editing ? 'Members' : 'Add Members' }}</label>
           <div class="max-h-44 space-y-1 overflow-y-auto rounded-lg border border-stone-200 p-2">
             <label v-for="u in users" :key="u.id" class="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-sm hover:bg-stone-50">
               <input v-model="form.member_ids" type="checkbox" :value="u.id" class="h-4 w-4 rounded border-stone-300" />
@@ -147,7 +150,7 @@ onMounted(() => { load(); loadUsers() })
             </label>
             <p v-if="!users.length" class="px-2 py-1 text-xs text-stone-400">No other users to add.</p>
           </div>
-          <p class="mt-1 text-xs text-stone-400">You are added as the owner automatically.</p>
+          <p class="mt-1 text-xs text-stone-400">{{ editing ? 'The owner is always kept; unchecking removes a member.' : 'You are added as the owner automatically.' }}</p>
         </div>
         <div class="flex justify-end gap-2">
           <button type="button" class="btn-secondary" @click="showModal = false">Cancel</button>

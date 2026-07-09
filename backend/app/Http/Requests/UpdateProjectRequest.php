@@ -20,6 +20,8 @@ class UpdateProjectRequest extends FormRequest
             'description' => ['nullable', 'string'],
             'status' => ['sometimes', Rule::in(Project::STATUSES)],
             'due_date' => ['nullable', 'date'],
+            'member_ids' => ['sometimes', 'array'],
+            'member_ids.*' => ['exists:users,id'],
         ];
     }
 }

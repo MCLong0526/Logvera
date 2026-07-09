@@ -11,6 +11,7 @@ const viewMonth = ref(today.getMonth()) // 0-11
 
 const loading = ref(true)
 const logs = ref([])
+const tasks = ref([])
 const projects = ref([])
 
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -40,15 +41,16 @@ const weeks = computed(() => {
   return w
 })
 
-// date string -> { users: { id: { name, logs[] } }, projects: [] }
+// date string -> { users: { id: { name, logs[], tasks[] } }, projects: [] }
 const byDay = computed(() => {
   const map = {}
-  for (const log of logs.value) {
-    const day = (map[log.date] ||= { users: {}, projects: [] })
-    const uid = log.user?.id ?? 0
-    const u = (day.users[uid] ||= { name: log.user?.name || 'Unknown', logs: [] })
-    u.logs.push(log)
+  const userOf = (item) => {
+    const day = (map[item.date] ||= { users: {}, projects: [] })
+    const uid = item.user?.id ?? 0
+    return (day.users[uid] ||= { name: item.user?.name || 'Unknown', logs: [], tasks: [] })
   }
+  for (const log of logs.value) userOf(log).logs.push(log)
+  for (const t of tasks.value) userOf(t).tasks.push(t)
   for (const p of projects.value) {
     if (!p.due_date) continue
     ;(map[p.due_date] ||= { users: {}, projects: [] }).projects.push(p)
@@ -79,6 +81,7 @@ async function load() {
   try {
     const { data } = await http.get('/calendar', { params: { month: monthParam.value } })
     logs.value = data.logs
+    tasks.value = data.tasks || []
     projects.value = data.projects
   } finally {
     loading.value = false
@@ -145,7 +148,7 @@ onMounted(load)
             <div v-for="u in usersOf(ymd(day))" :key="u.name" class="group/user relative">
               <span class="relative cursor-default">
                 <Avatar :name="u.name" size="sm" />
-                <span class="absolute -bottom-1 -right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full border border-surface bg-ink px-0.5 font-mono text-[8px] font-medium text-paper">{{ u.logs.length }}</span>
+                <span class="absolute -bottom-1 -right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full border border-surface bg-ink px-0.5 font-mono text-[8px] font-medium text-paper">{{ u.logs.length + u.tasks.length }}</span>
               </span>
 
               <!-- Popup — opens leftward on the last two columns so it doesn't overflow -->
@@ -156,9 +159,25 @@ onMounted(load)
                 <div class="mb-1.5 flex items-center gap-2 border-b border-line pb-1.5">
                   <Avatar :name="u.name" size="sm" />
                   <span class="text-xs font-semibold text-ink">{{ u.name }}</span>
-                  <span class="ml-auto font-mono text-[10px] text-stone-400">{{ u.logs.length }} log{{ u.logs.length > 1 ? 's' : '' }}</span>
+                  <span class="ml-auto font-mono text-[10px] text-stone-400">
+                    <template v-if="u.logs.length">{{ u.logs.length }} log{{ u.logs.length > 1 ? 's' : '' }}</template>
+                    <template v-if="u.logs.length && u.tasks.length"> · </template>
+                    <template v-if="u.tasks.length">{{ u.tasks.length }} due</template>
+                  </span>
                 </div>
                 <div class="max-h-56 space-y-1 overflow-y-auto">
+                  <!-- Tasks due today for this user -->
+                  <router-link
+                    v-for="t in u.tasks"
+                    :key="'t' + t.id"
+                    :to="{ name: 'task', params: { id: t.id } }"
+                    class="block rounded px-1.5 py-1 text-left hover:bg-brand-50"
+                  >
+                    <p class="truncate text-[11px] font-medium text-stone-700">
+                      <span class="mr-1 rounded bg-accent/10 px-1 font-mono text-[9px] uppercase text-accent">Due</span>{{ t.title }}
+                    </p>
+                    <p class="truncate font-mono text-[10px] text-stone-400">{{ t.project }}</p>
+                  </router-link>
                   <router-link
                     v-for="log in u.logs"
                     :key="log.id"
@@ -166,6 +185,7 @@ onMounted(load)
                     class="block rounded px-1.5 py-1 text-left hover:bg-brand-50"
                   >
                     <p class="truncate text-[11px] font-medium text-stone-700">{{ log.task?.title || 'Task' }}</p>
+                    <p v-if="log.task?.project" class="truncate font-mono text-[10px] text-stone-400">{{ log.task.project }}</p>
                     <p class="line-clamp-2 text-[11px] text-stone-500">{{ log.description }}</p>
                   </router-link>
                 </div>
