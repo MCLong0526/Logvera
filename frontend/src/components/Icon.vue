@@ -5,7 +5,7 @@ import {
   BellIcon, LogoutIcon, MenuIcon, XIcon, PlusIcon, PencilAltIcon,
   DownloadIcon, SearchIcon, ArrowLeftIcon, TrashIcon, PaperClipIcon,
   ArchiveIcon, UserAddIcon, CalendarIcon, ChevronLeftIcon, ChevronRightIcon,
-  ChevronDownIcon, UserCircleIcon, LockClosedIcon, CameraIcon,
+  ChevronDownIcon, UserCircleIcon, LockClosedIcon, CameraIcon, ViewBoardsIcon,
 } from '@heroicons/vue/outline'
 
 const map = {
@@ -34,6 +34,7 @@ const map = {
   user: UserCircleIcon,
   lock: LockClosedIcon,
   camera: CameraIcon,
+  board: ViewBoardsIcon,
 }
 
 defineProps({ name: { type: String, required: true } })

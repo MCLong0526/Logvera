@@ -23,6 +23,7 @@ A complete **Project & Daily Log Management System** — projects, members, dail
 | **Files** | Upload on task create or update; dedicated Files page with filters |
 | **Dashboard** | Cards + charts (by status / progress / project) |
 | **Search & filter** | By project, task, user, status, type, date |
+| **Task It** | Kanban boards (name + users) with Assigned / In Progress / Close stages, drag & drop cards |
 | **Notifications** | Members notified on task create/update/complete (database channel) |
 
 ---
@@ -109,6 +110,11 @@ Base URL `http://127.0.0.1:8000/api`. All routes except `POST /login` require `A
 | GET | `/files` | All files (`?project_id=&task_id=&user_id=&date=`) |
 | GET | `/files/{id}/download` | Download |
 | DELETE | `/files/{id}` | Delete |
+| GET/POST | `/boards` | Task It kanban boards (POST: `name`, `member_ids[]`) |
+| GET/DELETE | `/boards/{id}` | Show (members + cards) / delete *(owner)* |
+| POST | `/boards/{id}/cards` | Add card to the Assigned stage |
+| PUT | `/boards/{id}/cards/reorder` | Persist drag & drop (`columns: {stage: [ids…]}`) |
+| DELETE | `/boards/{id}/cards/{card}` | Delete card *(creator or owner)* |
 | GET | `/notifications` | List + unread count |
 | POST | `/notifications/read` | Mark all read |
 

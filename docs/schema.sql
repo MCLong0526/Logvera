@@ -108,6 +108,44 @@ CREATE TABLE task_assignees (
   CONSTRAINT task_assignees_user_id_foreign FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ---------- Task It boards (kanban) ----------
+CREATE TABLE boards (
+  id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  name       VARCHAR(255) NOT NULL,
+  owner_id   BIGINT UNSIGNED NOT NULL,
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL,
+  PRIMARY KEY (id),
+  CONSTRAINT boards_owner_id_foreign FOREIGN KEY (owner_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE board_members (
+  id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  board_id   BIGINT UNSIGNED NOT NULL,
+  user_id    BIGINT UNSIGNED NOT NULL,
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY board_members_board_id_user_id_unique (board_id, user_id),
+  CONSTRAINT board_members_board_id_foreign FOREIGN KEY (board_id) REFERENCES boards (id) ON DELETE CASCADE,
+  CONSTRAINT board_members_user_id_foreign FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE board_cards (
+  id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  board_id   BIGINT UNSIGNED NOT NULL,
+  title      VARCHAR(255) NOT NULL,
+  stage      ENUM('assigned','in_progress','closed') NOT NULL DEFAULT 'assigned',
+  position   INT UNSIGNED NOT NULL DEFAULT 0,
+  created_by BIGINT UNSIGNED NOT NULL,
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL,
+  PRIMARY KEY (id),
+  KEY board_cards_board_id_stage_index (board_id, stage),
+  CONSTRAINT board_cards_board_id_foreign FOREIGN KEY (board_id) REFERENCES boards (id) ON DELETE CASCADE,
+  CONSTRAINT board_cards_created_by_foreign FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ---------- Task update logs ----------
 CREATE TABLE task_updates (
   id             BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,

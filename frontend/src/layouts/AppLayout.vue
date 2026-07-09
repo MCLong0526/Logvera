@@ -18,6 +18,7 @@ const nav = [
   { name: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
   { name: 'projects', label: 'Projects', icon: 'projects' },
   { name: 'calendar', label: 'Calendar', icon: 'calendar' },
+  { name: 'taskit', label: 'Task It', icon: 'board' },
   { name: 'files', label: 'Files', icon: 'files' },
   { name: 'users', label: 'Users', icon: 'users' },
 ]

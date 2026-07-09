@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BoardCardController;
+use App\Http\Controllers\BoardController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
@@ -57,6 +59,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/files', [FileController::class, 'index']);
     Route::get('/files/{attachment}/download', [FileController::class, 'download']);
     Route::delete('/files/{attachment}', [FileController::class, 'destroy']);
+
+    // Task It boards (kanban)
+    Route::get('/boards', [BoardController::class, 'index']);
+    Route::post('/boards', [BoardController::class, 'store']);
+    Route::get('/boards/{board}', [BoardController::class, 'show']);
+    Route::delete('/boards/{board}', [BoardController::class, 'destroy']);
+    Route::post('/boards/{board}/cards', [BoardCardController::class, 'store']);
+    Route::put('/boards/{board}/cards/reorder', [BoardCardController::class, 'reorder']);
+    Route::delete('/boards/{board}/cards/{card}', [BoardCardController::class, 'destroy']);
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index']);
