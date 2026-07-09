@@ -39,21 +39,22 @@ class CalendarController extends Controller
                 'user' => $u->user ? ['id' => $u->user->id, 'name' => $u->user->name] : null,
             ]);
 
-        // Assigned tasks due this month, shown under the assignee on the target date.
+        // Assigned tasks due this month — one entry per assignee on the target date.
         $tasks = Task::query()
             ->when(! $user->is_admin, fn ($q) => $q->whereHas('project.members', fn ($m) => $m->where('users.id', $user->id)))
-            ->whereNotNull('assigned_user_id')
+            ->whereHas('assignees')
             ->whereBetween('target_date', [$start->toDateString(), $end->toDateString()])
-            ->with(['assignee:id,name', 'project:id,name'])
+            ->with(['assignees:id,name', 'project:id,name'])
             ->get()
-            ->map(fn ($t) => [
+            ->flatMap(fn ($t) => $t->assignees->map(fn ($a) => [
                 'id' => $t->id,
                 'date' => $t->target_date->toDateString(),
                 'title' => $t->title,
                 'status' => $t->status,
                 'project' => $t->project?->name,
-                'user' => ['id' => $t->assignee->id, 'name' => $t->assignee->name],
-            ]);
+                'user' => ['id' => $a->id, 'name' => $a->name],
+            ]))
+            ->values();
 
         $projects = Project::query()
             ->when(! $user->is_admin, fn ($q) => $q->whereHas('members', fn ($m) => $m->where('users.id', $user->id)))

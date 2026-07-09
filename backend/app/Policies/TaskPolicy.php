@@ -21,7 +21,7 @@ class TaskPolicy
         }
 
         return $task->project->hasMember($user)
-            && ($task->created_by === $user->id || $task->assigned_user_id === $user->id);
+            && ($task->created_by === $user->id || $task->assignees()->whereKey($user->id)->exists());
     }
 
     // Owner or the task creator may delete.

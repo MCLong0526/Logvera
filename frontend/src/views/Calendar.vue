@@ -4,6 +4,7 @@ import http from '../api/http'
 import Spinner from '../components/Spinner.vue'
 import Avatar from '../components/Avatar.vue'
 import Icon from '../components/Icon.vue'
+import { richHtml } from '../utils/richtext'
 
 const today = new Date()
 const viewYear = ref(today.getFullYear())
@@ -137,10 +138,10 @@ onMounted(load)
             v-for="p in projectsOf(ymd(day))"
             :key="'p' + p.id"
             :to="{ name: 'project', params: { id: p.id } }"
-            class="mb-1 flex items-center gap-1 truncate rounded bg-accent/10 px-1.5 py-0.5 font-mono text-[10px] text-accent hover:bg-accent/20"
+            class="mb-1 flex items-start gap-1 rounded bg-accent/10 px-1.5 py-0.5 font-mono text-[10px] text-accent hover:bg-accent/20"
             :title="`Due: ${p.name}`"
           >
-            <Icon name="calendar" class="h-3 w-3 shrink-0" /><span class="truncate">{{ p.name }}</span>
+            <Icon name="calendar" class="mt-0.5 h-3 w-3 shrink-0" /><span class="break-words">{{ p.name }}</span>
           </router-link>
 
           <!-- User activity — hover an avatar for that user's logs -->
@@ -173,10 +174,10 @@ onMounted(load)
                     :to="{ name: 'task', params: { id: t.id } }"
                     class="block rounded px-1.5 py-1 text-left hover:bg-brand-50"
                   >
-                    <p class="truncate text-[11px] font-medium text-stone-700">
+                    <p class="break-words text-[11px] font-medium text-stone-700">
                       <span class="mr-1 rounded bg-accent/10 px-1 font-mono text-[9px] uppercase text-accent">Due</span>{{ t.title }}
                     </p>
-                    <p class="truncate font-mono text-[10px] text-stone-400">{{ t.project }}</p>
+                    <p class="break-words font-mono text-[10px] text-stone-400">{{ t.project }}</p>
                   </router-link>
                   <router-link
                     v-for="log in u.logs"
@@ -184,9 +185,9 @@ onMounted(load)
                     :to="{ name: 'task', params: { id: log.task?.id }, query: { tab: 'updates', log: log.id } }"
                     class="block rounded px-1.5 py-1 text-left hover:bg-brand-50"
                   >
-                    <p class="truncate text-[11px] font-medium text-stone-700">{{ log.task?.title || 'Task' }}</p>
-                    <p v-if="log.task?.project" class="truncate font-mono text-[10px] text-stone-400">{{ log.task.project }}</p>
-                    <p class="line-clamp-2 text-[11px] text-stone-500">{{ log.description }}</p>
+                    <p class="break-words text-[11px] font-medium text-stone-700">{{ log.task?.title || 'Task' }}</p>
+                    <p v-if="log.task?.project" class="break-words font-mono text-[10px] text-stone-400">{{ log.task.project }}</p>
+                    <div class="rich text-[11px] text-stone-500" v-html="richHtml(log.description)" />
                   </router-link>
                 </div>
               </div>

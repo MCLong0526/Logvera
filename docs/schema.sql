@@ -78,13 +78,12 @@ CREATE TABLE tasks (
   project_id       BIGINT UNSIGNED NOT NULL,
   title            VARCHAR(255) NOT NULL,
   description      TEXT NULL,
-  type             ENUM('development','bug_fix','testing','meeting','documentation','research','others') NOT NULL DEFAULT 'development',
+  type             ENUM('bug','change_request','development','enhancement','idea','maintenance','others','quality_assurance','release','research_and_do','unit_testing','update','website_migration') NOT NULL DEFAULT 'development',
   priority         ENUM('low','medium','high','critical') NOT NULL DEFAULT 'medium',
   status           ENUM('not_started','in_progress','on_hold','completed','cancelled') NOT NULL DEFAULT 'not_started',
   progress         TINYINT UNSIGNED NOT NULL DEFAULT 0,
   target_date      DATE NULL,
   target_time      TIME NULL,
-  assigned_user_id BIGINT UNSIGNED NULL,
   created_by       BIGINT UNSIGNED NOT NULL,
   created_at       TIMESTAMP NULL,
   updated_at       TIMESTAMP NULL,
@@ -92,10 +91,21 @@ CREATE TABLE tasks (
   PRIMARY KEY (id),
   KEY tasks_project_id_status_index (project_id, status),
   KEY tasks_target_date_index (target_date),
-  KEY tasks_assigned_user_id_index (assigned_user_id),
   CONSTRAINT tasks_project_id_foreign FOREIGN KEY (project_id) REFERENCES projects (id) ON DELETE CASCADE,
-  CONSTRAINT tasks_assigned_user_id_foreign FOREIGN KEY (assigned_user_id) REFERENCES users (id) ON DELETE SET NULL,
   CONSTRAINT tasks_created_by_foreign FOREIGN KEY (created_by) REFERENCES users (id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------- Task assignees (M:N — a task can be assigned to many users) ----------
+CREATE TABLE task_assignees (
+  id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  task_id    BIGINT UNSIGNED NOT NULL,
+  user_id    BIGINT UNSIGNED NOT NULL,
+  created_at TIMESTAMP NULL,
+  updated_at TIMESTAMP NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY task_assignees_task_id_user_id_unique (task_id, user_id),
+  CONSTRAINT task_assignees_task_id_foreign FOREIGN KEY (task_id) REFERENCES tasks (id) ON DELETE CASCADE,
+  CONSTRAINT task_assignees_user_id_foreign FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------- Task update logs ----------

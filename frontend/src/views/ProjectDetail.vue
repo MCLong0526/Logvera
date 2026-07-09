@@ -10,7 +10,9 @@ import Badge from '../components/Badge.vue'
 import Avatar from '../components/Avatar.vue'
 import ProgressBar from '../components/ProgressBar.vue'
 import Icon from '../components/Icon.vue'
+import RichTextEditor from '../components/RichTextEditor.vue'
 import { formatDate, TYPE, TYPE_OPTIONS, STATUS_OPTIONS, PRIORITY_OPTIONS } from '../utils/labels'
+import { richHtml } from '../utils/richtext'
 
 const route = useRoute()
 const toast = useToastStore()
@@ -29,7 +31,7 @@ const files = ref([])
 const form = ref(blankTask())
 
 function blankTask() {
-  return { title: '', description: '', type: 'development', priority: 'medium', status: 'not_started', progress: 0, target_date: '', target_time: '', assigned_user_id: '' }
+  return { title: '', description: '', type: 'development', priority: 'medium', status: 'not_started', progress: 0, target_date: '', target_time: '', assigned_user_ids: [] }
 }
 
 // Group tasks by target_date, newest first.
@@ -68,7 +70,10 @@ async function loadUsers() {
 
 async function createTask() {
   const fd = new FormData()
-  Object.entries(form.value).forEach(([k, v]) => { if (v !== '' && v !== null) fd.append(k, v) })
+  Object.entries(form.value).forEach(([k, v]) => {
+    if (Array.isArray(v)) v.forEach((x) => fd.append(`${k}[]`, x))
+    else if (v !== '' && v !== null) fd.append(k, v)
+  })
   files.value.forEach((f) => fd.append('attachments[]', f))
   try {
     await http.post(`/projects/${route.params.id}/tasks`, fd)
@@ -120,7 +125,7 @@ onMounted(async () => { await load(); loadUsers() })
       <div>
         <router-link :to="{ name: 'projects' }" class="inline-flex items-center gap-1 text-sm text-stone-400 hover:text-brand-600"><Icon name="back" class="h-4 w-4" />Projects</router-link>
         <h1 class="mt-1 text-2xl font-bold tracking-tight text-ink">{{ project.name }}</h1>
-        <p class="text-sm text-stone-500">{{ project.description }}</p>
+        <div class="rich text-sm text-stone-500" v-html="richHtml(project.description)" />
         <div v-if="project.due_date" class="mt-2 inline-flex items-center gap-1.5 rounded-md bg-brand-50 px-2.5 py-1 font-mono text-xs text-stone-600">
           <Icon name="calendar" class="h-4 w-4" />Due {{ formatDate(project.due_date) }}
         </div>
@@ -148,8 +153,8 @@ onMounted(async () => { await load(); loadUsers() })
               class="card flex items-center gap-3 p-3 hover:border-brand-200"
             >
               <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-medium text-stone-800">{{ t.title }}</p>
-                <p class="text-xs text-stone-400">{{ TYPE[t.type] }} · {{ t.assignee?.name || 'Unassigned' }}</p>
+                <p class="break-words text-sm font-medium text-stone-800">{{ t.title }}</p>
+                <p class="text-xs text-stone-400">{{ TYPE[t.type] }} · {{ t.assignees?.length ? t.assignees.map((a) => a.name).join(', ') : 'Unassigned' }}</p>
               </div>
               <Badge kind="priority" :value="t.priority" />
               <Badge :value="t.status" />
@@ -183,7 +188,7 @@ onMounted(async () => { await load(); loadUsers() })
     <Modal v-if="showTaskModal" title="New Task" @close="showTaskModal = false">
       <form class="space-y-3" @submit.prevent="createTask">
         <div><label class="label">Title</label><input v-model="form.title" class="input" required /></div>
-        <div><label class="label">Description</label><textarea v-model="form.description" class="input" rows="2" /></div>
+        <div><label class="label">Description</label><RichTextEditor v-model="form.description" placeholder="Describe the task…" /></div>
         <div class="grid grid-cols-2 gap-3">
           <div><label class="label">Type</label><select v-model="form.type" class="input"><option v-for="o in TYPE_OPTIONS" :key="o.value" :value="o.value">{{ o.label }}</option></select></div>
           <div><label class="label">Priority</label><select v-model="form.priority" class="input"><option v-for="o in PRIORITY_OPTIONS" :key="o.value" :value="o.value">{{ o.label }}</option></select></div>
@@ -193,11 +198,14 @@ onMounted(async () => { await load(); loadUsers() })
           <div><label class="label">Target Time</label><input v-model="form.target_time" type="time" class="input" /></div>
         </div>
         <div>
-          <label class="label">Assignee</label>
-          <select v-model="form.assigned_user_id" class="input">
-            <option value="">Unassigned</option>
-            <option v-for="m in members" :key="m.id" :value="m.id">{{ m.name }}</option>
-          </select>
+          <label class="label">Assignees</label>
+          <div class="max-h-36 space-y-1 overflow-y-auto rounded-md border border-line p-2">
+            <label v-for="m in members" :key="m.id" class="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-sm hover:bg-brand-50">
+              <input v-model="form.assigned_user_ids" type="checkbox" :value="m.id" class="h-4 w-4 rounded border-stone-300" />
+              <Avatar :name="m.name" size="sm" />
+              <span class="text-stone-700">{{ m.name }}</span>
+            </label>
+          </div>
         </div>
         <div>
           <label class="label">Attachments</label>

@@ -17,7 +17,7 @@ A complete **Project & Daily Log Management System** — projects, members, dail
 | **Admin** | Admins (`is_admin`) can add and edit users from the Users page |
 | **Projects** | Create · edit · archive · delete (soft delete), owner + members |
 | **Members** | Owner adds/removes members; roles: `owner`, `member` |
-| **Tasks** | Type, priority, status, progress %, target date/time, assignee |
+| **Tasks** | Type, priority, status, progress %, target date/time, multiple assignees |
 | **Timeline** | Tasks auto-grouped by target date, newest first |
 | **Update logs** | Unlimited timeline updates; syncs task progress/status |
 | **Files** | Upload on task create or update; dedicated Files page with filters |
@@ -33,7 +33,8 @@ A complete **Project & Daily Log Management System** — projects, members, dail
 users ──1:N──> projects (owner_id)
 users <──M:N──> projects            (project_members: role owner|member)
 projects ──1:N──> tasks
-users ──1:N──> tasks (assigned_user_id, created_by)
+users ──1:N──> tasks (created_by)
+users <──M:N──> tasks               (task_assignees)
 tasks ──1:N──> task_updates ──N:1──> users
 tasks ──1:N──> attachments (polymorphic)         \
 task_updates ──1:N──> attachments (polymorphic)   } attachable_type/id + denormalised project_id/task_id/user_id

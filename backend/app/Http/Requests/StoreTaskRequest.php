@@ -24,7 +24,8 @@ class StoreTaskRequest extends FormRequest
             'progress' => ['nullable', 'integer', 'min:0', 'max:100'],
             'target_date' => ['nullable', 'date'],
             'target_time' => ['nullable', 'date_format:H:i'],
-            'assigned_user_id' => ['nullable', 'exists:users,id'],
+            'assigned_user_ids' => ['nullable', 'array'],
+            'assigned_user_ids.*' => ['exists:users,id'],
             'attachments' => ['nullable', 'array'],
             'attachments.*' => ['file', 'max:20480'],
         ];

@@ -77,9 +77,10 @@ class DatabaseSeeder extends Seeder
                     'progress' => $progress,
                     'target_date' => $date->toDateString(),
                     'target_time' => sprintf('%02d:00:00', rand(9, 17)),
-                    'assigned_user_id' => $assignee->id,
                     'created_by' => $admin->id,
                 ]);
+
+                $task->assignees()->attach($assignee->id);
 
                 // A couple of update logs per task, dated on the task's day so the calendar has spread.
                 foreach (range(1, rand(1, 3)) as $u) {

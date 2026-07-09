@@ -28,12 +28,12 @@ class TaskController extends Controller
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
             ->when($request->filled('type'), fn ($q) => $q->where('type', $request->type))
             ->when($request->filled('priority'), fn ($q) => $q->where('priority', $request->priority))
-            ->when($request->filled('assigned_user_id'), fn ($q) => $q->where('assigned_user_id', $request->assigned_user_id))
+            ->when($request->filled('assigned_user_id'), fn ($q) => $q->whereHas('assignees', fn ($a) => $a->where('users.id', $request->assigned_user_id)))
             ->when($request->filled('search'), fn ($q) => $q->where('title', 'like', "%{$request->search}%"))
             ->when($request->filled('date'), fn ($q) => $q->whereDate('target_date', $request->date))
             ->when($request->filled('date_from'), fn ($q) => $q->whereDate('target_date', '>=', $request->date_from))
             ->when($request->filled('date_to'), fn ($q) => $q->whereDate('target_date', '<=', $request->date_to))
-            ->with(['assignee', 'creator', 'project'])
+            ->with(['assignees', 'creator', 'project'])
             ->withCount('updates')
             ->orderByDesc('target_date')
             ->orderByDesc('created_at')
@@ -48,16 +48,18 @@ class TaskController extends Controller
         $this->authorize('view', $project); // any member may create tasks
 
         $task = $project->tasks()->create([
-            ...$request->safe()->except('attachments'),
+            ...$request->safe()->except(['attachments', 'assigned_user_ids']),
             'progress' => $request->input('progress', 0),
             'created_by' => $request->user()->id,
         ]);
+
+        $task->assignees()->sync($request->input('assigned_user_ids', []));
 
         $this->storeAttachments($request->file('attachments'), $task, $project->id, $request->user()->id);
 
         $this->notifyMembers($task, 'task_created', "New task: {$task->title}", $request->user());
 
-        return new TaskResource($task->load(['assignee', 'creator', 'attachments']));
+        return new TaskResource($task->load(['assignees', 'creator', 'attachments']));
     }
 
     // GET /api/tasks/{task}
@@ -66,7 +68,7 @@ class TaskController extends Controller
         $this->authorize('view', $task);
 
         return new TaskResource($task->load([
-            'assignee', 'creator', 'project',
+            'assignees', 'creator', 'project',
             'updates.user', 'updates.attachments', 'attachments.user',
         ]));
     }
@@ -76,12 +78,16 @@ class TaskController extends Controller
     {
         $this->authorize('update', $task);
 
-        $task->update($request->validated());
+        $task->update($request->safe()->except('assigned_user_ids'));
+
+        if ($request->has('assigned_user_ids')) {
+            $task->assignees()->sync($request->input('assigned_user_ids', []));
+        }
 
         $event = $task->wasChanged('status') && $task->status === 'completed' ? 'task_completed' : 'task_updated';
         $this->notifyMembers($task, $event, "Task updated: {$task->title}", $request->user());
 
-        return new TaskResource($task->load(['assignee', 'creator']));
+        return new TaskResource($task->load(['assignees', 'creator']));
     }
 
     // DELETE /api/tasks/{task}

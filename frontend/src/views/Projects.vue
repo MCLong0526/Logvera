@@ -8,7 +8,9 @@ import Spinner from '../components/Spinner.vue'
 import Modal from '../components/Modal.vue'
 import Avatar from '../components/Avatar.vue'
 import Icon from '../components/Icon.vue'
+import RichTextEditor from '../components/RichTextEditor.vue'
 import { formatDate } from '../utils/labels'
+import { richHtml } from '../utils/richtext'
 
 const toast = useToastStore()
 const confirm = useConfirmStore()
@@ -111,7 +113,7 @@ onMounted(() => { load(); loadUsers() })
           </router-link>
           <span v-if="p.status === 'archived'" class="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">Archived</span>
         </div>
-        <p class="mt-1 line-clamp-2 flex-1 text-sm text-stone-500">{{ p.description || 'No description' }}</p>
+        <div class="rich mt-1 flex-1 text-sm text-stone-500" v-html="richHtml(p.description) || 'No description'" />
         <div v-if="p.due_date" class="mt-2 inline-flex w-fit items-center gap-1.5 rounded-md bg-brand-50 px-2 py-0.5 font-mono text-[11px] text-stone-600">
           <Icon name="calendar" class="h-3.5 w-3.5" />Due {{ formatDate(p.due_date) }}
         </div>
@@ -130,7 +132,7 @@ onMounted(() => { load(); loadUsers() })
     <Modal v-if="showModal" :title="editing ? 'Edit Project' : 'New Project'" @close="showModal = false">
       <form class="space-y-4" @submit.prevent="save">
         <div><label class="label">Name</label><input v-model="form.name" class="input" required /></div>
-        <div><label class="label">Description</label><textarea v-model="form.description" class="input" rows="3" /></div>
+        <div><label class="label">Description</label><RichTextEditor v-model="form.description" placeholder="Describe the project…" /></div>
         <div><label class="label">Due Date</label><input v-model="form.due_date" type="date" class="input" /></div>
         <div v-if="editing">
           <label class="label">Status</label>

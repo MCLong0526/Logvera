@@ -8,7 +8,9 @@ import Badge from '../components/Badge.vue'
 import Avatar from '../components/Avatar.vue'
 import ProgressBar from '../components/ProgressBar.vue'
 import Icon from '../components/Icon.vue'
+import RichTextEditor from '../components/RichTextEditor.vue'
 import { formatDate, formatDateTime, formatBytes, TYPE, STATUS_OPTIONS } from '../utils/labels'
+import { richHtml } from '../utils/richtext'
 
 const route = useRoute()
 const toast = useToastStore()
@@ -44,6 +46,10 @@ async function load() {
 }
 
 async function submitUpdate() {
+  if (!update.value.description) {
+    toast.error('Please write what changed')
+    return
+  }
   submitting.value = true
   const fd = new FormData()
   fd.append('description', update.value.description)
@@ -113,12 +119,17 @@ onMounted(load)
     <div v-if="tab === 'overview'" class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
       <div class="card p-5 lg:col-span-2">
         <h3 class="mb-2 text-sm font-semibold text-stone-700">Description</h3>
-        <p class="whitespace-pre-line text-sm text-stone-600">{{ task.description || 'No description provided.' }}</p>
+        <div class="rich text-sm text-stone-600" v-html="richHtml(task.description) || 'No description provided.'" />
       </div>
       <div class="card divide-y divide-stone-100 p-0 text-sm">
-        <div class="flex items-center justify-between p-4">
-          <span class="text-stone-400">Assignee</span>
-          <span class="flex items-center gap-2 font-medium text-stone-700"><Avatar :name="task.assignee?.name" size="sm" v-if="task.assignee" />{{ task.assignee?.name || 'Unassigned' }}</span>
+        <div class="flex items-start justify-between gap-3 p-4">
+          <span class="text-stone-400">Assignees</span>
+          <span v-if="!task.assignees?.length" class="font-medium text-stone-700">Unassigned</span>
+          <span v-else class="flex flex-col items-end gap-1">
+            <span v-for="a in task.assignees" :key="a.id" class="flex items-center gap-2 font-medium text-stone-700">
+              <Avatar :name="a.name" size="sm" />{{ a.name }}
+            </span>
+          </span>
         </div>
         <div class="flex items-center justify-between p-4"><span class="text-stone-400">Created by</span><span class="font-medium text-stone-700">{{ task.creator?.name }}</span></div>
         <div class="flex items-center justify-between p-4"><span class="text-stone-400">Target date</span><span class="font-medium text-stone-700">{{ formatDate(task.target_date) }}</span></div>
@@ -140,7 +151,7 @@ onMounted(load)
                 <span class="text-sm font-medium text-stone-700">{{ u.user?.name }}</span>
                 <span class="text-xs text-stone-400">{{ formatDateTime(u.created_at) }}</span>
               </div>
-              <p class="whitespace-pre-line text-sm text-stone-600">{{ u.description }}</p>
+              <div class="rich text-sm text-stone-600" v-html="richHtml(u.description)" />
               <div class="mt-2 flex flex-wrap items-center gap-2">
                 <Badge v-if="u.status_after" :value="u.status_after" />
                 <span v-if="u.progress_after !== null" class="text-xs text-stone-400">Progress → {{ u.progress_after }}%</span>
@@ -155,7 +166,7 @@ onMounted(load)
       <div class="card h-fit p-4">
         <h3 class="mb-3 text-sm font-semibold text-stone-700">Post an Update</h3>
         <form class="space-y-3" @submit.prevent="submitUpdate">
-          <textarea v-model="update.description" class="input" rows="3" placeholder="What changed?" required />
+          <RichTextEditor v-model="update.description" placeholder="What changed?" />
           <div class="grid grid-cols-2 gap-3">
             <div><label class="label">Progress %</label><input v-model.number="update.progress_after" type="number" min="0" max="100" class="input" /></div>
             <div><label class="label">Status</label><select v-model="update.status_after" class="input"><option v-for="o in STATUS_OPTIONS" :key="o.value" :value="o.value">{{ o.label }}</option></select></div>

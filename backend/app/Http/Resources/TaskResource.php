@@ -21,7 +21,7 @@ class TaskResource extends JsonResource
             'progress' => $this->progress,
             'target_date' => $this->target_date?->toDateString(),
             'target_time' => $this->target_time,
-            'assignee' => new UserResource($this->whenLoaded('assignee')),
+            'assignees' => UserResource::collection($this->whenLoaded('assignees')),
             'creator' => new UserResource($this->whenLoaded('creator')),
             'updates' => TaskUpdateResource::collection($this->whenLoaded('updates')),
             'updates_count' => $this->whenCounted('updates'),

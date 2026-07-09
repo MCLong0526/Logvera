@@ -27,7 +27,7 @@ class DashboardController extends Controller
             'completed_today' => $tasks()->where('status', 'completed')->whereDate('updated_at', $today)->count(),
         ];
 
-        $recentlyUpdated = $tasks()->with(['assignee', 'project'])
+        $recentlyUpdated = $tasks()->with(['assignees', 'project'])
             ->latest('updated_at')->limit(6)->get();
 
         $charts = [

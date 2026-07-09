@@ -93,7 +93,7 @@ onMounted(async () => {
             :to="{ name: 'task', params: { id: t.id } }"
             class="-mx-2 flex items-center gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-brand-50"
           >
-            <span class="flex-1 truncate text-sm font-medium text-ink">{{ t.title }}</span>
+            <span class="flex-1 break-words text-sm font-medium text-ink">{{ t.title }}</span>
             <span class="hidden font-mono text-xs text-stone-400 sm:block">{{ t.project?.name }}</span>
             <Badge :value="t.status" />
             <div class="w-28"><ProgressBar :value="t.progress" /></div>
