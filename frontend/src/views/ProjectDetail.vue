@@ -102,7 +102,12 @@ async function removeMember(m) {
   toast.success('Member removed')
 }
 
-function onFiles(e) { files.value = Array.from(e.target.files) }
+function onFiles(e) {
+  // Append so files picked across multiple selections all upload.
+  files.value.push(...Array.from(e.target.files))
+  e.target.value = ''
+}
+function removeFile(i) { files.value.splice(i, 1) }
 
 onMounted(async () => { await load(); loadUsers() })
 </script>
@@ -190,7 +195,16 @@ onMounted(async () => { await load(); loadUsers() })
             <option v-for="m in members" :key="m.id" :value="m.id">{{ m.name }}</option>
           </select>
         </div>
-        <div><label class="label">Attachments</label><input type="file" multiple class="text-sm" @change="onFiles" /></div>
+        <div>
+          <label class="label">Attachments</label>
+          <input type="file" multiple class="text-sm" @change="onFiles" />
+          <ul v-if="files.length" class="mt-2 space-y-1">
+            <li v-for="(f, i) in files" :key="i" class="flex items-center justify-between rounded bg-slate-50 px-2 py-1 text-xs">
+              <span class="truncate">📎 {{ f.name }}</span>
+              <button type="button" class="text-slate-400 hover:text-red-500" @click="removeFile(i)">✕</button>
+            </li>
+          </ul>
+        </div>
         <div class="flex justify-end gap-2 pt-1">
           <button type="button" class="btn-secondary" @click="showTaskModal = false">Cancel</button>
           <button type="submit" class="btn-primary">Create Task</button>

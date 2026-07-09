@@ -55,7 +55,12 @@ async function submitUpdate() {
   }
 }
 
-function onFiles(e) { updateFiles.value = Array.from(e.target.files) }
+function onFiles(e) {
+  // Append so files picked across multiple selections all upload.
+  updateFiles.value.push(...Array.from(e.target.files))
+  e.target.value = ''
+}
+function removeFile(i) { updateFiles.value.splice(i, 1) }
 
 onMounted(load)
 </script>
@@ -147,6 +152,12 @@ onMounted(load)
             <div><label class="label">Status</label><select v-model="update.status_after" class="input"><option v-for="o in STATUS_OPTIONS" :key="o.value" :value="o.value">{{ o.label }}</option></select></div>
           </div>
           <input type="file" multiple class="text-sm" @change="onFiles" />
+          <ul v-if="updateFiles.length" class="space-y-1">
+            <li v-for="(f, i) in updateFiles" :key="i" class="flex items-center justify-between rounded bg-slate-50 px-2 py-1 text-xs">
+              <span class="truncate">📎 {{ f.name }}</span>
+              <button type="button" class="text-slate-400 hover:text-red-500" @click="removeFile(i)">✕</button>
+            </li>
+          </ul>
           <button type="submit" class="btn-primary w-full" :disabled="submitting">{{ submitting ? 'Posting…' : 'Post Update' }}</button>
         </form>
       </div>

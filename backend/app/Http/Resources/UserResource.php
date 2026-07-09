@@ -15,6 +15,7 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'job_title' => $this->job_title,
             'avatar' => $this->avatar,
+            'is_admin' => (bool) $this->is_admin,
             'role' => $this->whenPivotLoaded('project_members', fn () => $this->pivot->role),
             'created_at' => $this->created_at,
         ];

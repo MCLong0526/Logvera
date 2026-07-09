@@ -16,6 +16,7 @@ CREATE TABLE users (
   email             VARCHAR(255) NOT NULL,
   job_title         VARCHAR(255) NULL,
   avatar            VARCHAR(255) NULL,
+  is_admin          TINYINT(1) NOT NULL DEFAULT 0,
   email_verified_at TIMESTAMP NULL,
   password          VARCHAR(255) NOT NULL,
   remember_token    VARCHAR(100) NULL,

@@ -14,6 +14,7 @@ A complete **Project & Daily Log Management System** — projects, members, dail
 | Area | What it does |
 |------|--------------|
 | **Auth** | Token login/logout (Sanctum), profile edit |
+| **Admin** | Admins (`is_admin`) can add and edit users from the Users page |
 | **Projects** | Create · edit · archive · delete (soft delete), owner + members |
 | **Members** | Owner adds/removes members; roles: `owner`, `member` |
 | **Tasks** | Type, priority, status, progress %, target date/time, assignee |
@@ -90,6 +91,8 @@ Base URL `http://127.0.0.1:8000/api`. All routes except `POST /login` require `A
 | GET | `/me` | Current user |
 | PUT | `/profile` | Update name/email/job_title/password |
 | GET | `/users` | List users (`?search=`) |
+| POST | `/users` | Create user *(admin only)* |
+| PUT | `/users/{id}` | Update user *(admin only)* |
 | GET | `/dashboard` | Cards + recent tasks + chart data |
 | GET | `/projects` | List (`?search=&status=&per_page=`) |
 | POST | `/projects` | Create |
@@ -109,6 +112,7 @@ Base URL `http://127.0.0.1:8000/api`. All routes except `POST /login` require `A
 | POST | `/notifications/read` | Mark all read |
 
 ### Permissions
+- **Admin (`is_admin`):** manage users (add/edit) in addition to normal access.
 - **Owner:** full access to their project, members, and all tasks.
 - **Member:** view project, create tasks, update tasks they created or are assigned.
 

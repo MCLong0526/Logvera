@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@logvera.test',
             'password' => Hash::make('password'),
             'job_title' => 'Product Lead',
+            'is_admin' => true,
         ]);
 
         $members = collect([
