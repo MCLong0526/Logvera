@@ -118,7 +118,7 @@ onMounted(() => { load(); loadUsers() })
           <Icon name="calendar" class="h-3.5 w-3.5" />Due {{ formatDate(p.due_date) }}
         </div>
         <div class="mt-3 flex items-center justify-between text-xs text-stone-400">
-          <span class="flex items-center gap-1"><Avatar :name="p.owner?.name" size="sm" /> {{ p.owner?.name }}</span>
+          <span class="flex items-center gap-1"><Avatar :name="p.owner?.name" :src="p.owner?.avatar" size="sm" /> {{ p.owner?.name }}</span>
           <span>{{ p.tasks_count }} tasks · {{ formatDate(p.created_at) }}</span>
         </div>
         <div v-if="p.is_owner" class="mt-3 flex gap-2 border-t border-stone-100 pt-3">
@@ -146,7 +146,7 @@ onMounted(() => { load(); loadUsers() })
           <div class="max-h-44 space-y-1 overflow-y-auto rounded-lg border border-stone-200 p-2">
             <label v-for="u in users" :key="u.id" class="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-sm hover:bg-stone-50">
               <input v-model="form.member_ids" type="checkbox" :value="u.id" class="h-4 w-4 rounded border-stone-300" />
-              <Avatar :name="u.name" size="sm" />
+              <Avatar :name="u.name" :src="u.avatar" size="sm" />
               <span class="text-stone-700">{{ u.name }}</span>
               <span class="text-xs text-stone-400">{{ u.email }}</span>
             </label>

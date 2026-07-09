@@ -68,7 +68,7 @@ onMounted(async () => {
         <div class="p-3">
           <p class="truncate text-sm font-medium text-stone-700">{{ f.original_name }}</p>
           <p class="mt-0.5 flex items-center gap-1 text-xs text-stone-400">
-            <Avatar :name="f.user?.name" size="sm" />{{ formatDate(f.created_at) }} · {{ formatBytes(f.size) }}
+            <Avatar :name="f.user?.name" :src="f.user?.avatar" size="sm" />{{ formatDate(f.created_at) }} · {{ formatBytes(f.size) }}
           </p>
           <a :href="f.url" :download="f.original_name" target="_blank" class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:underline"><Icon name="download" class="h-3.5 w-3.5" />Download</a>
         </div>

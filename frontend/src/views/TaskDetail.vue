@@ -127,7 +127,7 @@ onMounted(load)
           <span v-if="!task.assignees?.length" class="font-medium text-stone-700">Unassigned</span>
           <span v-else class="flex flex-col items-end gap-1">
             <span v-for="a in task.assignees" :key="a.id" class="flex items-center gap-2 font-medium text-stone-700">
-              <Avatar :name="a.name" size="sm" />{{ a.name }}
+              <Avatar :name="a.name" :src="a.avatar" size="sm" />{{ a.name }}
             </span>
           </span>
         </div>
@@ -147,7 +147,7 @@ onMounted(load)
             <span class="absolute -left-[9px] mt-1 h-4 w-4 rounded-full border-2 border-white bg-brand-500" />
             <div class="card p-4 transition-shadow" :class="{ 'ring-2 ring-accent': highlightLog === u.id }">
               <div class="mb-1 flex items-center gap-2">
-                <Avatar :name="u.user?.name" size="sm" />
+                <Avatar :name="u.user?.name" :src="u.user?.avatar" size="sm" />
                 <span class="text-sm font-medium text-stone-700">{{ u.user?.name }}</span>
                 <span class="text-xs text-stone-400">{{ formatDateTime(u.created_at) }}</span>
               </div>

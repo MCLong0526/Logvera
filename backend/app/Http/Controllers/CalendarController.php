@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\Task;
 use App\Models\TaskUpdate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class CalendarController extends Controller
 {
@@ -24,7 +25,7 @@ class CalendarController extends Controller
         $logs = TaskUpdate::query()
             ->when(! $user->is_admin, fn ($q) => $q->whereHas('task.project.members', fn ($m) => $m->where('users.id', $user->id)))
             ->whereBetween('created_at', [$start, $end])
-            ->with(['user:id,name', 'task:id,title,project_id', 'task.project:id,name'])
+            ->with(['user:id,name,avatar', 'task:id,title,project_id', 'task.project:id,name'])
             ->latest()
             ->get()
             ->map(fn ($u) => [
@@ -36,7 +37,7 @@ class CalendarController extends Controller
                     'title' => $u->task->title,
                     'project' => $u->task->project?->name,
                 ] : null,
-                'user' => $u->user ? ['id' => $u->user->id, 'name' => $u->user->name] : null,
+                'user' => $u->user ? $this->userPayload($u->user) : null,
             ]);
 
         // Assigned tasks due this month — one entry per assignee on the target date.
@@ -44,7 +45,7 @@ class CalendarController extends Controller
             ->when(! $user->is_admin, fn ($q) => $q->whereHas('project.members', fn ($m) => $m->where('users.id', $user->id)))
             ->whereHas('assignees')
             ->whereBetween('target_date', [$start->toDateString(), $end->toDateString()])
-            ->with(['assignees:id,name', 'project:id,name'])
+            ->with(['assignees:id,name,avatar', 'project:id,name'])
             ->get()
             ->flatMap(fn ($t) => $t->assignees->map(fn ($a) => [
                 'id' => $t->id,
@@ -52,7 +53,7 @@ class CalendarController extends Controller
                 'title' => $t->title,
                 'status' => $t->status,
                 'project' => $t->project?->name,
-                'user' => ['id' => $a->id, 'name' => $a->name],
+                'user' => $this->userPayload($a),
             ]))
             ->values();
 
@@ -67,5 +68,14 @@ class CalendarController extends Controller
             ]);
 
         return response()->json(['logs' => $logs, 'tasks' => $tasks, 'projects' => $projects]);
+    }
+
+    private function userPayload($user): array
+    {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'avatar' => $user->avatar ? Storage::url($user->avatar) : null,
+        ];
     }
 }

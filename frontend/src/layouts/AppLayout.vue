@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import http from '../api/http'
@@ -9,7 +9,10 @@ import Icon from '../components/Icon.vue'
 const auth = useAuthStore()
 const router = useRouter()
 const sidebarOpen = ref(false)
+const menuOpen = ref(false)
 const unread = ref(0)
+
+const closeMenu = () => { menuOpen.value = false }
 
 const nav = [
   { name: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -31,7 +34,11 @@ async function logout() {
   router.push({ name: 'login' })
 }
 
-onMounted(loadNotifications)
+onMounted(() => {
+  loadNotifications()
+  document.addEventListener('click', closeMenu)
+})
+onUnmounted(() => document.removeEventListener('click', closeMenu))
 </script>
 
 <template>
@@ -73,11 +80,25 @@ onMounted(loadNotifications)
             <Icon name="bell" class="h-[22px] w-[22px]" />
             <span class="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 font-mono text-[10px] font-medium text-white">{{ unread }}</span>
           </span>
-          <router-link :to="{ name: 'profile' }" class="flex items-center gap-2 rounded-md py-1 pl-1 pr-2 transition-colors hover:bg-brand-50">
-            <Avatar :name="auth.user?.name" size="sm" />
-            <span class="hidden text-sm font-medium text-ink sm:block">{{ auth.user?.name }}</span>
-          </router-link>
-          <button class="btn-secondary !px-2.5 !py-1.5 text-xs" @click="logout"><Icon name="logout" class="h-4 w-4" />Logout</button>
+          <div class="relative">
+            <button class="flex items-center gap-2 rounded-md py-1 pl-1 pr-2 transition-colors hover:bg-brand-50" @click.stop="menuOpen = !menuOpen">
+              <Avatar :name="auth.user?.name" :src="auth.user?.avatar" size="sm" />
+              <span class="hidden text-sm font-medium text-ink sm:block">{{ auth.user?.name }}</span>
+              <Icon name="chevron-down" class="h-4 w-4 text-stone-400 transition-transform" :class="{ 'rotate-180': menuOpen }" />
+            </button>
+            <div v-if="menuOpen" class="absolute right-0 top-full z-30 mt-1.5 w-52 rounded-lg border border-line bg-surface p-1 shadow-lift">
+              <router-link :to="{ name: 'profile' }" class="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-stone-600 hover:bg-brand-50 hover:text-ink" @click="menuOpen = false">
+                <Icon name="user" class="h-[18px] w-[18px]" />User Profile
+              </router-link>
+              <router-link :to="{ name: 'profile', query: { focus: 'password' } }" class="flex items-center gap-2.5 rounded-md px-3 py-2 text-sm text-stone-600 hover:bg-brand-50 hover:text-ink" @click="menuOpen = false">
+                <Icon name="lock" class="h-[18px] w-[18px]" />Change Password
+              </router-link>
+              <hr class="my-1 border-line" />
+              <button class="flex w-full items-center gap-2.5 rounded-md px-3 py-2 text-sm text-stone-600 hover:bg-brand-50 hover:text-ink" @click="logout">
+                <Icon name="logout" class="h-[18px] w-[18px]" />Logout
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 

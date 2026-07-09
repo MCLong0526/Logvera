@@ -7,6 +7,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -62,6 +63,22 @@ class AuthController extends Controller
         }
 
         $user->save();
+
+        return new UserResource($user);
+    }
+
+    // POST /api/profile/avatar
+    public function uploadAvatar(Request $request)
+    {
+        $request->validate(['avatar' => ['required', 'image', 'max:5120']]);
+
+        $user = $request->user();
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        $user->update(['avatar' => $request->file('avatar')->store('avatars', 'public')]);
 
         return new UserResource($user);
     }

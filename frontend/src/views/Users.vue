@@ -76,7 +76,7 @@ onMounted(load)
     <Spinner v-if="loading" />
     <div v-else class="card divide-y divide-stone-100">
       <div v-for="u in users" :key="u.id" class="flex items-center gap-3 p-4">
-        <Avatar :name="u.name" size="lg" />
+        <Avatar :name="u.name" :src="u.avatar" size="lg" />
         <div class="flex-1">
           <p class="flex items-center gap-2 font-medium text-stone-800">
             {{ u.name }}

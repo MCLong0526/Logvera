@@ -172,7 +172,7 @@ onMounted(async () => { await load(); loadUsers() })
         </div>
         <div class="card divide-y divide-stone-100">
           <div v-for="m in members" :key="m.id" class="flex items-center gap-3 p-3">
-            <Avatar :name="m.name" size="sm" />
+            <Avatar :name="m.name" :src="m.avatar" size="sm" />
             <div class="min-w-0 flex-1">
               <p class="truncate text-sm font-medium text-stone-700">{{ m.name }}</p>
               <p class="text-xs text-stone-400">{{ m.job_title || m.email }}</p>
@@ -202,7 +202,7 @@ onMounted(async () => { await load(); loadUsers() })
           <div class="max-h-36 space-y-1 overflow-y-auto rounded-md border border-line p-2">
             <label v-for="m in members" :key="m.id" class="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-sm hover:bg-brand-50">
               <input v-model="form.assigned_user_ids" type="checkbox" :value="m.id" class="h-4 w-4 rounded border-stone-300" />
-              <Avatar :name="m.name" size="sm" />
+              <Avatar :name="m.name" :src="m.avatar" size="sm" />
               <span class="text-stone-700">{{ m.name }}</span>
             </label>
           </div>

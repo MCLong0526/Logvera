@@ -48,7 +48,7 @@ const byDay = computed(() => {
   const userOf = (item) => {
     const day = (map[item.date] ||= { users: {}, projects: [] })
     const uid = item.user?.id ?? 0
-    return (day.users[uid] ||= { name: item.user?.name || 'Unknown', logs: [], tasks: [] })
+    return (day.users[uid] ||= { name: item.user?.name || 'Unknown', avatar: item.user?.avatar, logs: [], tasks: [] })
   }
   for (const log of logs.value) userOf(log).logs.push(log)
   for (const t of tasks.value) userOf(t).tasks.push(t)
@@ -148,7 +148,7 @@ onMounted(load)
           <div class="flex flex-wrap gap-1">
             <div v-for="u in usersOf(ymd(day))" :key="u.name" class="group/user relative">
               <span class="relative cursor-default">
-                <Avatar :name="u.name" size="sm" />
+                <Avatar :name="u.name" :src="u.avatar" size="sm" />
                 <span class="absolute -bottom-1 -right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full border border-surface bg-ink px-0.5 font-mono text-[8px] font-medium text-paper">{{ u.logs.length + u.tasks.length }}</span>
               </span>
 
@@ -158,7 +158,7 @@ onMounted(load)
                 :class="di >= 5 ? 'right-0 origin-top-right' : 'left-0 origin-top-left'"
               >
                 <div class="mb-1.5 flex items-center gap-2 border-b border-line pb-1.5">
-                  <Avatar :name="u.name" size="sm" />
+                  <Avatar :name="u.name" :src="u.avatar" size="sm" />
                   <span class="text-xs font-semibold text-ink">{{ u.name }}</span>
                   <span class="ml-auto font-mono text-[10px] text-stone-400">
                     <template v-if="u.logs.length">{{ u.logs.length }} log{{ u.logs.length > 1 ? 's' : '' }}</template>
