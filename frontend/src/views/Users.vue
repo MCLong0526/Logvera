@@ -64,7 +64,7 @@ onMounted(load)
 <template>
   <div>
     <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
-      <h1 class="text-2xl font-semibold text-slate-800">Users</h1>
+      <h1 class="text-2xl font-bold tracking-tight text-ink">Users</h1>
       <button v-if="auth.user?.is_admin" class="btn-primary" @click="openCreate"><Icon name="user-add" class="h-4 w-4" />Add User</button>
     </div>
 
@@ -74,20 +74,20 @@ onMounted(load)
     </div>
 
     <Spinner v-if="loading" />
-    <div v-else class="card divide-y divide-slate-100">
+    <div v-else class="card divide-y divide-stone-100">
       <div v-for="u in users" :key="u.id" class="flex items-center gap-3 p-4">
         <Avatar :name="u.name" size="lg" />
         <div class="flex-1">
-          <p class="flex items-center gap-2 font-medium text-slate-800">
+          <p class="flex items-center gap-2 font-medium text-stone-800">
             {{ u.name }}
             <span v-if="u.is_admin" class="rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">Admin</span>
           </p>
-          <p class="text-sm text-slate-400">{{ u.job_title || '—' }}</p>
+          <p class="text-sm text-stone-400">{{ u.job_title || '—' }}</p>
         </div>
-        <span class="text-sm text-slate-500">{{ u.email }}</span>
+        <span class="text-sm text-stone-500">{{ u.email }}</span>
         <button v-if="auth.user?.is_admin" class="btn-secondary !py-1 text-xs" @click="openEdit(u)"><Icon name="edit" class="h-4 w-4" />Edit</button>
       </div>
-      <p v-if="!users.length" class="p-8 text-center text-slate-400">No users found.</p>
+      <p v-if="!users.length" class="p-8 text-center text-stone-400">No users found.</p>
     </div>
 
     <Modal v-if="showModal" :title="editing ? 'Edit User' : 'Add User'" @close="showModal = false">
@@ -99,8 +99,8 @@ onMounted(load)
           <label class="label">{{ editing ? 'New Password (leave blank to keep)' : 'Password' }}</label>
           <input v-model="form.password" type="password" class="input" :required="!editing" autocomplete="new-password" />
         </div>
-        <label class="flex items-center gap-2 text-sm text-slate-600">
-          <input v-model="form.is_admin" type="checkbox" class="h-4 w-4 rounded border-slate-300" />
+        <label class="flex items-center gap-2 text-sm text-stone-600">
+          <input v-model="form.is_admin" type="checkbox" class="h-4 w-4 rounded border-stone-300" />
           Administrator (can add & edit users)
         </label>
         <div class="flex justify-end gap-2">

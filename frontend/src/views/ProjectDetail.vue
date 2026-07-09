@@ -118,9 +118,9 @@ onMounted(async () => { await load(); loadUsers() })
   <div v-else-if="project">
     <div class="mb-5 flex flex-wrap items-start justify-between gap-3">
       <div>
-        <router-link :to="{ name: 'projects' }" class="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-brand-600"><Icon name="back" class="h-4 w-4" />Projects</router-link>
-        <h1 class="mt-1 text-2xl font-semibold text-slate-800">{{ project.name }}</h1>
-        <p class="text-sm text-slate-500">{{ project.description }}</p>
+        <router-link :to="{ name: 'projects' }" class="inline-flex items-center gap-1 text-sm text-stone-400 hover:text-brand-600"><Icon name="back" class="h-4 w-4" />Projects</router-link>
+        <h1 class="mt-1 text-2xl font-bold tracking-tight text-ink">{{ project.name }}</h1>
+        <p class="text-sm text-stone-500">{{ project.description }}</p>
       </div>
       <button class="btn-primary" @click="showTaskModal = true"><Icon name="plus" class="h-4 w-4" />New Task</button>
     </div>
@@ -128,16 +128,16 @@ onMounted(async () => { await load(); loadUsers() })
     <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
       <!-- Timeline -->
       <div class="lg:col-span-2">
-        <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">Task Timeline</h2>
-        <div v-if="!tasks.length" class="card p-8 text-center text-slate-400">No tasks yet.</div>
+        <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-stone-400">Task Timeline</h2>
+        <div v-if="!tasks.length" class="card p-8 text-center text-stone-400">No tasks yet.</div>
         <div v-for="group in grouped" :key="group.date" class="mb-6">
           <div class="mb-2 flex items-center gap-2">
             <span class="h-2 w-2 rounded-full bg-brand-500" />
-            <span class="text-sm font-semibold text-slate-600">
+            <span class="text-sm font-semibold text-stone-600">
               {{ group.date === 'No date' ? 'No target date' : formatDate(group.date) }}
             </span>
           </div>
-          <div class="ml-1 space-y-2 border-l-2 border-slate-100 pl-4">
+          <div class="ml-1 space-y-2 border-l-2 border-stone-100 pl-4">
             <router-link
               v-for="t in group.tasks"
               :key="t.id"
@@ -145,8 +145,8 @@ onMounted(async () => { await load(); loadUsers() })
               class="card flex items-center gap-3 p-3 hover:border-brand-200"
             >
               <div class="min-w-0 flex-1">
-                <p class="truncate text-sm font-medium text-slate-800">{{ t.title }}</p>
-                <p class="text-xs text-slate-400">{{ TYPE[t.type] }} · {{ t.assignee?.name || 'Unassigned' }}</p>
+                <p class="truncate text-sm font-medium text-stone-800">{{ t.title }}</p>
+                <p class="text-xs text-stone-400">{{ TYPE[t.type] }} · {{ t.assignee?.name || 'Unassigned' }}</p>
               </div>
               <Badge kind="priority" :value="t.priority" />
               <Badge :value="t.status" />
@@ -159,18 +159,18 @@ onMounted(async () => { await load(); loadUsers() })
       <!-- Members -->
       <div>
         <div class="mb-2 flex items-center justify-between">
-          <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">Members</h2>
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-stone-400">Members</h2>
           <button v-if="project.is_owner" class="inline-flex items-center gap-1 text-xs text-brand-600 hover:underline" @click="showMemberModal = true"><Icon name="plus" class="h-3.5 w-3.5" />Add</button>
         </div>
-        <div class="card divide-y divide-slate-100">
+        <div class="card divide-y divide-stone-100">
           <div v-for="m in members" :key="m.id" class="flex items-center gap-3 p-3">
             <Avatar :name="m.name" size="sm" />
             <div class="min-w-0 flex-1">
-              <p class="truncate text-sm font-medium text-slate-700">{{ m.name }}</p>
-              <p class="text-xs text-slate-400">{{ m.job_title || m.email }}</p>
+              <p class="truncate text-sm font-medium text-stone-700">{{ m.name }}</p>
+              <p class="text-xs text-stone-400">{{ m.job_title || m.email }}</p>
             </div>
-            <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs capitalize text-slate-500">{{ m.role }}</span>
-            <button v-if="project.is_owner && m.role !== 'owner'" class="text-slate-300 hover:text-red-500" @click="removeMember(m)"><Icon name="close" class="h-4 w-4" /></button>
+            <span class="rounded-full bg-stone-100 px-2 py-0.5 text-xs capitalize text-stone-500">{{ m.role }}</span>
+            <button v-if="project.is_owner && m.role !== 'owner'" class="text-stone-300 hover:text-red-500" @click="removeMember(m)"><Icon name="close" class="h-4 w-4" /></button>
           </div>
         </div>
       </div>
@@ -200,9 +200,9 @@ onMounted(async () => { await load(); loadUsers() })
           <label class="label">Attachments</label>
           <input type="file" multiple class="text-sm" @change="onFiles" />
           <ul v-if="files.length" class="mt-2 space-y-1">
-            <li v-for="(f, i) in files" :key="i" class="flex items-center justify-between rounded bg-slate-50 px-2 py-1 text-xs">
+            <li v-for="(f, i) in files" :key="i" class="flex items-center justify-between rounded bg-stone-50 px-2 py-1 text-xs">
               <span class="flex items-center gap-1 truncate"><Icon name="paperclip" class="h-3.5 w-3.5 shrink-0" />{{ f.name }}</span>
-              <button type="button" class="text-slate-400 hover:text-red-500" @click="removeFile(i)"><Icon name="close" class="h-3.5 w-3.5" /></button>
+              <button type="button" class="text-stone-400 hover:text-red-500" @click="removeFile(i)"><Icon name="close" class="h-3.5 w-3.5" /></button>
             </li>
           </ul>
         </div>

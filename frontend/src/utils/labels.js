@@ -1,18 +1,19 @@
 // Display labels + colour classes for the task enums (mirrors the backend constants).
 
+// Each entry carries a `dot` colour; the Badge renders a hairline pill + dot.
 export const STATUS = {
-  not_started: { label: 'Not Started', class: 'bg-slate-100 text-slate-600' },
-  in_progress: { label: 'In Progress', class: 'bg-blue-100 text-blue-700' },
-  on_hold: { label: 'On Hold', class: 'bg-amber-100 text-amber-700' },
-  completed: { label: 'Completed', class: 'bg-green-100 text-green-700' },
-  cancelled: { label: 'Cancelled', class: 'bg-red-100 text-red-700' },
+  not_started: { label: 'Not Started', dot: 'bg-stone-400' },
+  in_progress: { label: 'In Progress', dot: 'bg-blue-500' },
+  on_hold: { label: 'On Hold', dot: 'bg-amber-500' },
+  completed: { label: 'Completed', dot: 'bg-emerald-500' },
+  cancelled: { label: 'Cancelled', dot: 'bg-rose-400' },
 }
 
 export const PRIORITY = {
-  low: { label: 'Low', class: 'bg-slate-100 text-slate-600' },
-  medium: { label: 'Medium', class: 'bg-sky-100 text-sky-700' },
-  high: { label: 'High', class: 'bg-orange-100 text-orange-700' },
-  critical: { label: 'Critical', class: 'bg-red-100 text-red-700' },
+  low: { label: 'Low', dot: 'bg-stone-400' },
+  medium: { label: 'Medium', dot: 'bg-sky-500' },
+  high: { label: 'High', dot: 'bg-orange-500' },
+  critical: { label: 'Critical', dot: 'bg-rose-500' },
 }
 
 export const TYPE = {

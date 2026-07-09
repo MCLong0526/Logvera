@@ -9,19 +9,23 @@ import ProgressBar from '../components/ProgressBar.vue'
 import { formatDate } from '../utils/labels'
 
 Chart.register(...registerables)
+Chart.defaults.font.family = "'JetBrains Mono', monospace"
+Chart.defaults.font.size = 11
+Chart.defaults.color = '#78716c'
 
 const loading = ref(true)
 const data = ref(null)
 
-const palette = ['#94a3b8', '#3b82f6', '#f59e0b', '#22c55e', '#ef4444']
+// Aligned with the status badge dots.
+const palette = ['#a8a29e', '#3b82f6', '#f59e0b', '#10b981', '#fb7185']
 
 const cards = computed(() => {
   const c = data.value?.cards || {}
   return [
-    { label: 'My Projects', value: c.my_projects, tone: 'text-brand-600' },
-    { label: "Today's Tasks", value: c.todays_tasks, tone: 'text-blue-600' },
-    { label: 'Overdue Tasks', value: c.overdue_tasks, tone: 'text-red-600' },
-    { label: 'Completed Today', value: c.completed_today, tone: 'text-green-600' },
+    { label: 'My Projects', value: c.my_projects, dot: 'bg-ink' },
+    { label: "Today's Tasks", value: c.todays_tasks, dot: 'bg-blue-500' },
+    { label: 'Overdue Tasks', value: c.overdue_tasks, dot: 'bg-accent' },
+    { label: 'Completed Today', value: c.completed_today, dot: 'bg-emerald-500' },
   ]
 })
 
@@ -32,12 +36,12 @@ const statusChart = computed(() => ({
 
 const progressChart = computed(() => ({
   labels: Object.keys(data.value?.charts?.by_progress || {}),
-  datasets: [{ label: 'Tasks', data: Object.values(data.value?.charts?.by_progress || {}), backgroundColor: '#6366f1' }],
+  datasets: [{ label: 'Tasks', data: Object.values(data.value?.charts?.by_progress || {}), backgroundColor: '#1B1A17', borderRadius: 4, maxBarThickness: 44 }],
 }))
 
 const projectChart = computed(() => ({
   labels: Object.keys(data.value?.charts?.by_project || {}),
-  datasets: [{ label: 'Tasks', data: Object.values(data.value?.charts?.by_project || {}), backgroundColor: '#22c55e' }],
+  datasets: [{ label: 'Tasks', data: Object.values(data.value?.charts?.by_project || {}), backgroundColor: '#C2410C', borderRadius: 4, maxBarThickness: 44 }],
 }))
 
 const chartOpts = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
@@ -52,47 +56,50 @@ onMounted(async () => {
 
 <template>
   <div>
-    <h1 class="mb-5 text-2xl font-semibold text-slate-800">Dashboard</h1>
+    <h1 class="mb-6 text-2xl font-bold tracking-tight text-ink">Dashboard</h1>
     <Spinner v-if="loading" />
     <template v-else>
-      <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div v-for="c in cards" :key="c.label" class="card p-4">
-          <p class="text-sm text-slate-500">{{ c.label }}</p>
-          <p class="mt-1 text-3xl font-bold" :class="c.tone">{{ c.value }}</p>
+      <div class="stagger grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <div v-for="c in cards" :key="c.label" class="card p-5 transition-shadow hover:shadow-lift">
+          <div class="flex items-center gap-2">
+            <span class="h-1.5 w-1.5 rounded-full" :class="c.dot" />
+            <p class="font-mono text-[11px] uppercase tracking-wider text-stone-500">{{ c.label }}</p>
+          </div>
+          <p class="mt-2 font-mono text-4xl font-semibold tabular-nums text-ink">{{ c.value ?? 0 }}</p>
         </div>
       </div>
 
-      <div class="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div class="card p-4">
-          <h3 class="mb-3 text-sm font-semibold text-slate-700">Tasks by Status</h3>
+      <div class="stagger mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <div class="card p-5">
+          <h3 class="mb-4 font-mono text-[11px] uppercase tracking-wider text-stone-500">Tasks by Status</h3>
           <div class="h-56"><Doughnut :data="statusChart" :options="doughnutOpts" /></div>
         </div>
-        <div class="card p-4">
-          <h3 class="mb-3 text-sm font-semibold text-slate-700">Tasks by Progress</h3>
+        <div class="card p-5">
+          <h3 class="mb-4 font-mono text-[11px] uppercase tracking-wider text-stone-500">Tasks by Progress</h3>
           <div class="h-56"><Bar :data="progressChart" :options="chartOpts" /></div>
         </div>
-        <div class="card p-4">
-          <h3 class="mb-3 text-sm font-semibold text-slate-700">Tasks by Project</h3>
+        <div class="card p-5">
+          <h3 class="mb-4 font-mono text-[11px] uppercase tracking-wider text-stone-500">Tasks by Project</h3>
           <div class="h-56"><Bar :data="projectChart" :options="chartOpts" /></div>
         </div>
       </div>
 
-      <div class="card mt-5 p-4">
-        <h3 class="mb-3 text-sm font-semibold text-slate-700">Recently Updated Tasks</h3>
-        <div class="divide-y divide-slate-100">
+      <div class="card mt-4 p-5">
+        <h3 class="mb-2 font-mono text-[11px] uppercase tracking-wider text-stone-500">Recently Updated</h3>
+        <div class="divide-y divide-line">
           <router-link
             v-for="t in data.recently_updated"
             :key="t.id"
             :to="{ name: 'task', params: { id: t.id } }"
-            class="flex items-center gap-3 py-2.5 hover:bg-slate-50"
+            class="-mx-2 flex items-center gap-3 rounded-md px-2 py-2.5 transition-colors hover:bg-brand-50"
           >
-            <span class="flex-1 truncate text-sm font-medium text-slate-700">{{ t.title }}</span>
-            <span class="hidden text-xs text-slate-400 sm:block">{{ t.project?.name }}</span>
+            <span class="flex-1 truncate text-sm font-medium text-ink">{{ t.title }}</span>
+            <span class="hidden font-mono text-xs text-stone-400 sm:block">{{ t.project?.name }}</span>
             <Badge :value="t.status" />
             <div class="w-28"><ProgressBar :value="t.progress" /></div>
-            <span class="hidden w-20 text-right text-xs text-slate-400 md:block">{{ formatDate(t.updated_at) }}</span>
+            <span class="hidden w-20 text-right font-mono text-xs tabular-nums text-stone-400 md:block">{{ formatDate(t.updated_at) }}</span>
           </router-link>
-          <p v-if="!data.recently_updated.length" class="py-6 text-center text-sm text-slate-400">No tasks yet.</p>
+          <p v-if="!data.recently_updated.length" class="py-6 text-center text-sm text-stone-400">No tasks yet.</p>
         </div>
       </div>
     </template>

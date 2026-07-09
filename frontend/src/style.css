@@ -4,20 +4,44 @@
 
 @layer base {
   html {
-    @apply antialiased text-slate-800 bg-slate-50;
+    @apply antialiased text-ink bg-paper;
+    font-feature-settings: 'ss01', 'cv01';
   }
+  body { @apply bg-paper; }
+  /* Numbers, dates, metadata read as mono — the "engineering log" detailing. */
+  .tabular { @apply font-mono tabular-nums; }
+  h1, h2, h3 { @apply tracking-tight; }
 }
 
 @layer components {
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-1.5 rounded-md px-3.5 py-2 text-sm font-semibold transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
   }
-  .btn-primary { @apply btn bg-brand-600 text-white hover:bg-brand-700; }
-  .btn-secondary { @apply btn bg-white text-slate-700 border border-slate-200 hover:bg-slate-50; }
-  .btn-danger { @apply btn bg-red-600 text-white hover:bg-red-700; }
+  /* Primary is monochrome ink — colour is reserved for status only. */
+  .btn-primary { @apply btn bg-ink text-paper hover:bg-black; }
+  .btn-secondary { @apply btn bg-surface text-ink border border-line hover:bg-brand-50; }
+  .btn-danger { @apply btn bg-[#B4322A] text-white hover:bg-[#9a2a23]; }
   .input {
-    @apply w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100;
+    @apply w-full rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink outline-none transition
+           placeholder:text-stone-400 focus:border-ink focus:ring-2 focus:ring-ink/10;
   }
-  .label { @apply block text-sm font-medium text-slate-600 mb-1; }
-  .card { @apply bg-white rounded-xl border border-slate-200 shadow-sm; }
+  /* Field labels: small, uppercase, mono — form reads like a spec sheet. */
+  .label { @apply mb-1 block font-mono text-[11px] font-medium uppercase tracking-wider text-stone-500; }
+  .card { @apply rounded-lg border border-line bg-surface shadow-card; }
 }
+
+/* Staggered page-load reveal — one orchestrated entrance. */
+.stagger > * { @apply animate-fade-up; }
+.stagger > *:nth-child(2) { animation-delay: 60ms; }
+.stagger > *:nth-child(3) { animation-delay: 120ms; }
+.stagger > *:nth-child(4) { animation-delay: 180ms; }
+.stagger > *:nth-child(5) { animation-delay: 240ms; }
+
+/* Route change — subtle fade/rise. */
+.page-enter-active { transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.16,1,0.3,1); }
+.page-enter-from { opacity: 0; transform: translateY(6px); }
+.page-leave-active { transition: opacity 0.12s ease; }
+.page-leave-to { opacity: 0; }
+
+/* Warm, thin scrollbars to match the paper surface. */
+* { scrollbar-width: thin; scrollbar-color: #D6D0C4 transparent; }

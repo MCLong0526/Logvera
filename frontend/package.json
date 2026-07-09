@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/hanken-grotesk": "^5.2.8",
+    "@fontsource/jetbrains-mono": "^5.2.8",
     "@heroicons/vue": "^1.0.6",
     "axios": "^1.18.1",
     "chart.js": "^4.5.1",

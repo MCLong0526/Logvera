@@ -84,7 +84,7 @@ onMounted(() => { load(); loadUsers() })
 <template>
   <div>
     <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
-      <h1 class="text-2xl font-semibold text-slate-800">Projects</h1>
+      <h1 class="text-2xl font-bold tracking-tight text-ink">Projects</h1>
       <button class="btn-primary" @click="openCreate"><Icon name="plus" class="h-4 w-4" />New Project</button>
     </div>
 
@@ -99,21 +99,21 @@ onMounted(() => { load(); loadUsers() })
     </div>
 
     <Spinner v-if="loading" />
-    <div v-else-if="!projects.length" class="card p-10 text-center text-slate-400">No projects found.</div>
+    <div v-else-if="!projects.length" class="card p-10 text-center text-stone-400">No projects found.</div>
     <div v-else class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
       <div v-for="p in projects" :key="p.id" class="card flex flex-col p-4">
         <div class="flex items-start justify-between">
-          <router-link :to="{ name: 'project', params: { id: p.id } }" class="font-semibold text-slate-800 hover:text-brand-600">
+          <router-link :to="{ name: 'project', params: { id: p.id } }" class="font-semibold text-stone-800 hover:text-brand-600">
             {{ p.name }}
           </router-link>
           <span v-if="p.status === 'archived'" class="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">Archived</span>
         </div>
-        <p class="mt-1 line-clamp-2 flex-1 text-sm text-slate-500">{{ p.description || 'No description' }}</p>
-        <div class="mt-3 flex items-center justify-between text-xs text-slate-400">
+        <p class="mt-1 line-clamp-2 flex-1 text-sm text-stone-500">{{ p.description || 'No description' }}</p>
+        <div class="mt-3 flex items-center justify-between text-xs text-stone-400">
           <span class="flex items-center gap-1"><Avatar :name="p.owner?.name" size="sm" /> {{ p.owner?.name }}</span>
           <span>{{ p.tasks_count }} tasks · {{ formatDate(p.created_at) }}</span>
         </div>
-        <div v-if="p.is_owner" class="mt-3 flex gap-2 border-t border-slate-100 pt-3">
+        <div v-if="p.is_owner" class="mt-3 flex gap-2 border-t border-stone-100 pt-3">
           <button class="btn-secondary !py-1 text-xs" @click="openEdit(p)"><Icon name="edit" class="h-4 w-4" />Edit</button>
           <button class="btn-secondary !py-1 text-xs" @click="archive(p)"><Icon name="archive" class="h-4 w-4" />{{ p.status === 'archived' ? 'Restore' : 'Archive' }}</button>
           <button class="btn-danger !py-1 text-xs" @click="remove(p)"><Icon name="trash" class="h-4 w-4" />Delete</button>
@@ -134,16 +134,16 @@ onMounted(() => { load(); loadUsers() })
         </div>
         <div v-else>
           <label class="label">Add Members</label>
-          <div class="max-h-44 space-y-1 overflow-y-auto rounded-lg border border-slate-200 p-2">
-            <label v-for="u in users" :key="u.id" class="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-sm hover:bg-slate-50">
-              <input v-model="form.member_ids" type="checkbox" :value="u.id" class="h-4 w-4 rounded border-slate-300" />
+          <div class="max-h-44 space-y-1 overflow-y-auto rounded-lg border border-stone-200 p-2">
+            <label v-for="u in users" :key="u.id" class="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-sm hover:bg-stone-50">
+              <input v-model="form.member_ids" type="checkbox" :value="u.id" class="h-4 w-4 rounded border-stone-300" />
               <Avatar :name="u.name" size="sm" />
-              <span class="text-slate-700">{{ u.name }}</span>
-              <span class="text-xs text-slate-400">{{ u.email }}</span>
+              <span class="text-stone-700">{{ u.name }}</span>
+              <span class="text-xs text-stone-400">{{ u.email }}</span>
             </label>
-            <p v-if="!users.length" class="px-2 py-1 text-xs text-slate-400">No other users to add.</p>
+            <p v-if="!users.length" class="px-2 py-1 text-xs text-stone-400">No other users to add.</p>
           </div>
-          <p class="mt-1 text-xs text-slate-400">You are added as the owner automatically.</p>
+          <p class="mt-1 text-xs text-stone-400">You are added as the owner automatically.</p>
         </div>
         <div class="flex justify-end gap-2">
           <button type="button" class="btn-secondary" @click="showModal = false">Cancel</button>
