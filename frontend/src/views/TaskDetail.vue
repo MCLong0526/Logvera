@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useRoute } from 'vue-router'
 import http from '../api/http'
 import { useToastStore } from '../stores/toast'
@@ -15,7 +15,9 @@ const toast = useToastStore()
 
 const loading = ref(true)
 const task = ref(null)
-const tab = ref('overview')
+// Deep-link support: /tasks/:id?tab=updates&log=42 opens the log tab and highlights the log.
+const tab = ref(['overview', 'updates', 'files'].includes(route.query.tab) ? route.query.tab : 'overview')
+const highlightLog = ref(Number(route.query.log) || null)
 const tabs = [
   { key: 'overview', label: 'Overview' },
   { key: 'updates', label: 'Update Logs' },
@@ -33,6 +35,12 @@ async function load() {
   update.value.progress_after = task.value.progress
   update.value.status_after = task.value.status
   loading.value = false
+
+  // Scroll the deep-linked log into view once rendered.
+  if (highlightLog.value) {
+    await nextTick()
+    document.getElementById(`log-${highlightLog.value}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
 }
 
 async function submitUpdate() {
@@ -124,9 +132,9 @@ onMounted(load)
       <div class="lg:col-span-2">
         <div v-if="!task.updates.length" class="card p-8 text-center text-stone-400">No updates yet.</div>
         <ol class="relative ml-3 border-l-2 border-stone-100">
-          <li v-for="u in task.updates" :key="u.id" class="mb-5 ml-5">
+          <li v-for="u in task.updates" :key="u.id" :id="`log-${u.id}`" class="mb-5 ml-5 scroll-mt-24">
             <span class="absolute -left-[9px] mt-1 h-4 w-4 rounded-full border-2 border-white bg-brand-500" />
-            <div class="card p-4">
+            <div class="card p-4 transition-shadow" :class="{ 'ring-2 ring-accent': highlightLog === u.id }">
               <div class="mb-1 flex items-center gap-2">
                 <Avatar :name="u.user?.name" size="sm" />
                 <span class="text-sm font-medium text-stone-700">{{ u.user?.name }}</span>

@@ -19,6 +19,7 @@ class UpdateProjectRequest extends FormRequest
             'name' => ['sometimes', 'required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'status' => ['sometimes', Rule::in(Project::STATUSES)],
+            'due_date' => ['nullable', 'date'],
         ];
     }
 }

@@ -29,8 +29,8 @@ class DatabaseSeeder extends Seeder
         ])->map(fn ($u) => User::create([...$u, 'password' => Hash::make('password')]));
 
         $projects = [
-            ['name' => 'Logvera Web App', 'description' => 'Project & daily log management platform.'],
-            ['name' => 'Mobile Companion', 'description' => 'React Native companion app.', 'status' => 'active'],
+            ['name' => 'Logvera Web App', 'description' => 'Project & daily log management platform.', 'due_date' => now()->addDays(10)->toDateString()],
+            ['name' => 'Mobile Companion', 'description' => 'React Native companion app.', 'status' => 'active', 'due_date' => now()->addDays(24)->toDateString()],
             ['name' => 'Legacy Migration', 'description' => 'Archived migration effort.', 'status' => 'archived'],
         ];
 
@@ -40,6 +40,7 @@ class DatabaseSeeder extends Seeder
                 'description' => $data['description'],
                 'owner_id' => $admin->id,
                 'status' => $data['status'] ?? 'active',
+                'due_date' => $data['due_date'] ?? null,
             ]);
 
             // Owner + all members belong to the project.
@@ -80,15 +81,16 @@ class DatabaseSeeder extends Seeder
                     'created_by' => $admin->id,
                 ]);
 
-                // A couple of update logs per task.
+                // A couple of update logs per task, dated on the task's day so the calendar has spread.
                 foreach (range(1, rand(1, 3)) as $u) {
-                    TaskUpdate::create([
+                    $log = TaskUpdate::create([
                         'task_id' => $task->id,
                         'user_id' => $assignee->id,
                         'description' => 'Progress update #'.$u.' — work continuing.',
                         'progress_after' => min(100, $progress),
                         'status_after' => $status,
                     ]);
+                    $log->forceFill(['created_at' => $date, 'updated_at' => $date])->save();
                 }
             }
         }

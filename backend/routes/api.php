@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\NotificationController;
@@ -27,6 +28,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index']);
+
+    // Calendar — user activity logs + project due dates for a month
+    Route::get('/calendar', [CalendarController::class, 'index']);
 
     // Projects
     Route::apiResource('projects', ProjectController::class);

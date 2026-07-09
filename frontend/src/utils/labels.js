@@ -17,13 +17,19 @@ export const PRIORITY = {
 }
 
 export const TYPE = {
+  bug: 'Bug',
+  change_request: 'Change Request',
   development: 'Development',
-  bug_fix: 'Bug Fix',
-  testing: 'Testing',
-  meeting: 'Meeting',
-  documentation: 'Documentation',
-  research: 'Research',
+  enhancement: 'Enhancement',
+  idea: 'Idea',
+  maintenance: 'Maintenance',
   others: 'Others',
+  quality_assurance: 'Quality Assurance',
+  release: 'Release',
+  research_and_do: 'Research & Do',
+  unit_testing: 'Unit Testing',
+  update: 'Update',
+  website_migration: 'Website Migration',
 }
 
 export const STATUS_OPTIONS = Object.entries(STATUS).map(([value, v]) => ({ value, label: v.label }))

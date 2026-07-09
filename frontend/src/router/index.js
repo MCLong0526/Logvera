@@ -11,6 +11,7 @@ const routes = [
       { path: 'projects', name: 'projects', component: () => import('../views/Projects.vue') },
       { path: 'projects/:id', name: 'project', component: () => import('../views/ProjectDetail.vue') },
       { path: 'tasks/:id', name: 'task', component: () => import('../views/TaskDetail.vue') },
+      { path: 'calendar', name: 'calendar', component: () => import('../views/Calendar.vue') },
       { path: 'files', name: 'files', component: () => import('../views/Files.vue') },
       { path: 'users', name: 'users', component: () => import('../views/Users.vue') },
       { path: 'profile', name: 'profile', component: () => import('../views/Profile.vue') },

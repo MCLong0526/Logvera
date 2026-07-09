@@ -14,6 +14,7 @@ const unread = ref(0)
 const nav = [
   { name: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
   { name: 'projects', label: 'Projects', icon: 'projects' },
+  { name: 'calendar', label: 'Calendar', icon: 'calendar' },
   { name: 'files', label: 'Files', icon: 'files' },
   { name: 'users', label: 'Users', icon: 'users' },
 ]

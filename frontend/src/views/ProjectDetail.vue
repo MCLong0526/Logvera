@@ -121,6 +121,9 @@ onMounted(async () => { await load(); loadUsers() })
         <router-link :to="{ name: 'projects' }" class="inline-flex items-center gap-1 text-sm text-stone-400 hover:text-brand-600"><Icon name="back" class="h-4 w-4" />Projects</router-link>
         <h1 class="mt-1 text-2xl font-bold tracking-tight text-ink">{{ project.name }}</h1>
         <p class="text-sm text-stone-500">{{ project.description }}</p>
+        <div v-if="project.due_date" class="mt-2 inline-flex items-center gap-1.5 rounded-md bg-brand-50 px-2.5 py-1 font-mono text-xs text-stone-600">
+          <Icon name="calendar" class="h-4 w-4" />Due {{ formatDate(project.due_date) }}
+        </div>
       </div>
       <button class="btn-primary" @click="showTaskModal = true"><Icon name="plus" class="h-4 w-4" />New Task</button>
     </div>

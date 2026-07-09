@@ -22,7 +22,7 @@ const statusFilter = ref('')
 
 const showModal = ref(false)
 const editing = ref(null)
-const form = ref({ name: '', description: '', status: 'active', member_ids: [] })
+const form = ref({ name: '', description: '', status: 'active', due_date: '', member_ids: [] })
 
 async function load() {
   loading.value = true
@@ -39,13 +39,13 @@ async function loadUsers() {
 
 function openCreate() {
   editing.value = null
-  form.value = { name: '', description: '', status: 'active', member_ids: [] }
+  form.value = { name: '', description: '', status: 'active', due_date: '', member_ids: [] }
   showModal.value = true
 }
 
 function openEdit(p) {
   editing.value = p
-  form.value = { name: p.name, description: p.description, status: p.status }
+  form.value = { name: p.name, description: p.description, status: p.status, due_date: p.due_date || '' }
   showModal.value = true
 }
 
@@ -109,6 +109,9 @@ onMounted(() => { load(); loadUsers() })
           <span v-if="p.status === 'archived'" class="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">Archived</span>
         </div>
         <p class="mt-1 line-clamp-2 flex-1 text-sm text-stone-500">{{ p.description || 'No description' }}</p>
+        <div v-if="p.due_date" class="mt-2 inline-flex w-fit items-center gap-1.5 rounded-md bg-brand-50 px-2 py-0.5 font-mono text-[11px] text-stone-600">
+          <Icon name="calendar" class="h-3.5 w-3.5" />Due {{ formatDate(p.due_date) }}
+        </div>
         <div class="mt-3 flex items-center justify-between text-xs text-stone-400">
           <span class="flex items-center gap-1"><Avatar :name="p.owner?.name" size="sm" /> {{ p.owner?.name }}</span>
           <span>{{ p.tasks_count }} tasks · {{ formatDate(p.created_at) }}</span>
@@ -125,6 +128,7 @@ onMounted(() => { load(); loadUsers() })
       <form class="space-y-4" @submit.prevent="save">
         <div><label class="label">Name</label><input v-model="form.name" class="input" required /></div>
         <div><label class="label">Description</label><textarea v-model="form.description" class="input" rows="3" /></div>
+        <div><label class="label">Due Date</label><input v-model="form.due_date" type="date" class="input" /></div>
         <div v-if="editing">
           <label class="label">Status</label>
           <select v-model="form.status" class="input">

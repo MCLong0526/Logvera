@@ -20,7 +20,13 @@ class Project extends Model
         'description',
         'owner_id',
         'status',
+        'due_date',
     ];
+
+    protected function casts(): array
+    {
+        return ['due_date' => 'date'];
+    }
 
     public function owner(): BelongsTo
     {

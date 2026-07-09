@@ -13,7 +13,11 @@ class Task extends Model
 {
     use HasFactory, SoftDeletes;
 
-    public const TYPES = ['development', 'bug_fix', 'testing', 'meeting', 'documentation', 'research', 'others'];
+    public const TYPES = [
+        'bug', 'change_request', 'development', 'enhancement', 'idea', 'maintenance',
+        'others', 'quality_assurance', 'release', 'research_and_do', 'unit_testing',
+        'update', 'website_migration',
+    ];
     public const PRIORITIES = ['low', 'medium', 'high', 'critical'];
     public const STATUSES = ['not_started', 'in_progress', 'on_hold', 'completed', 'cancelled'];
 
