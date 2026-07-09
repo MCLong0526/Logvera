@@ -7,6 +7,7 @@ import Spinner from '../components/Spinner.vue'
 import Badge from '../components/Badge.vue'
 import Avatar from '../components/Avatar.vue'
 import ProgressBar from '../components/ProgressBar.vue'
+import Icon from '../components/Icon.vue'
 import { formatDate, formatDateTime, formatBytes, TYPE, STATUS_OPTIONS } from '../utils/labels'
 
 const route = useRoute()
@@ -68,8 +69,8 @@ onMounted(load)
 <template>
   <Spinner v-if="loading" />
   <div v-else-if="task">
-    <router-link :to="{ name: 'project', params: { id: task.project_id } }" class="text-sm text-slate-400 hover:text-brand-600">
-      ← {{ task.project?.name }}
+    <router-link :to="{ name: 'project', params: { id: task.project_id } }" class="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-brand-600">
+      <Icon name="back" class="h-4 w-4" />{{ task.project?.name }}
     </router-link>
 
     <div class="mt-2 flex flex-wrap items-start justify-between gap-3">
@@ -137,7 +138,7 @@ onMounted(load)
                 <span v-if="u.progress_after !== null" class="text-xs text-slate-400">Progress → {{ u.progress_after }}%</span>
               </div>
               <div v-if="u.attachments?.length" class="mt-2 flex flex-wrap gap-2">
-                <a v-for="a in u.attachments" :key="a.id" :href="a.url" target="_blank" class="rounded bg-slate-50 px-2 py-1 text-xs text-brand-600 hover:underline">📎 {{ a.original_name }}</a>
+                <a v-for="a in u.attachments" :key="a.id" :href="a.url" target="_blank" class="inline-flex items-center gap-1 rounded bg-slate-50 px-2 py-1 text-xs text-brand-600 hover:underline"><Icon name="paperclip" class="h-3.5 w-3.5" />{{ a.original_name }}</a>
               </div>
             </div>
           </li>
@@ -154,8 +155,8 @@ onMounted(load)
           <input type="file" multiple class="text-sm" @change="onFiles" />
           <ul v-if="updateFiles.length" class="space-y-1">
             <li v-for="(f, i) in updateFiles" :key="i" class="flex items-center justify-between rounded bg-slate-50 px-2 py-1 text-xs">
-              <span class="truncate">📎 {{ f.name }}</span>
-              <button type="button" class="text-slate-400 hover:text-red-500" @click="removeFile(i)">✕</button>
+              <span class="flex items-center gap-1 truncate"><Icon name="paperclip" class="h-3.5 w-3.5 shrink-0" />{{ f.name }}</span>
+              <button type="button" class="text-slate-400 hover:text-red-500" @click="removeFile(i)"><Icon name="close" class="h-3.5 w-3.5" /></button>
             </li>
           </ul>
           <button type="submit" class="btn-primary w-full" :disabled="submitting">{{ submitting ? 'Posting…' : 'Post Update' }}</button>
@@ -169,7 +170,7 @@ onMounted(load)
       <div v-else class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         <a v-for="a in task.attachments" :key="a.id" :href="a.url" target="_blank" class="card overflow-hidden hover:border-brand-200">
           <img v-if="a.is_image" :src="a.url" class="h-28 w-full object-cover" />
-          <div v-else class="flex h-28 items-center justify-center bg-slate-50 text-3xl">📄</div>
+          <div v-else class="flex h-28 items-center justify-center bg-slate-50 text-slate-300"><Icon name="doc" class="h-10 w-10" /></div>
           <div class="p-2">
             <p class="truncate text-xs font-medium text-slate-700">{{ a.original_name }}</p>
             <p class="text-[10px] text-slate-400">{{ formatBytes(a.size) }}</p>

@@ -5,6 +5,7 @@ import { useToastStore } from '../stores/toast'
 import { useConfirmStore } from '../stores/confirm'
 import Spinner from '../components/Spinner.vue'
 import Avatar from '../components/Avatar.vue'
+import Icon from '../components/Icon.vue'
 import { formatDate, formatBytes } from '../utils/labels'
 
 const toast = useToastStore()
@@ -61,15 +62,15 @@ onMounted(async () => {
       <div v-for="f in files" :key="f.id" class="card group relative overflow-hidden">
         <a :href="f.url" target="_blank">
           <img v-if="f.is_image" :src="f.url" class="h-32 w-full object-cover" />
-          <div v-else class="flex h-32 items-center justify-center bg-slate-50 text-4xl">📄</div>
+          <div v-else class="flex h-32 items-center justify-center bg-slate-50 text-slate-300"><Icon name="doc" class="h-12 w-12" /></div>
         </a>
-        <button class="absolute right-2 top-2 hidden rounded bg-white/90 px-1.5 text-red-500 group-hover:block" @click="remove(f)">✕</button>
+        <button class="absolute right-2 top-2 hidden rounded bg-white/90 p-1 text-red-500 group-hover:block" @click="remove(f)"><Icon name="close" class="h-4 w-4" /></button>
         <div class="p-3">
           <p class="truncate text-sm font-medium text-slate-700">{{ f.original_name }}</p>
           <p class="mt-0.5 flex items-center gap-1 text-xs text-slate-400">
             <Avatar :name="f.user?.name" size="sm" />{{ formatDate(f.created_at) }} · {{ formatBytes(f.size) }}
           </p>
-          <a :href="f.url" :download="f.original_name" target="_blank" class="mt-2 inline-block text-xs font-medium text-brand-600 hover:underline">Download</a>
+          <a :href="f.url" :download="f.original_name" target="_blank" class="mt-2 inline-flex items-center gap-1 text-xs font-medium text-brand-600 hover:underline"><Icon name="download" class="h-3.5 w-3.5" />Download</a>
         </div>
       </div>
     </div>

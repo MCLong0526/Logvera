@@ -6,6 +6,7 @@ import { useToastStore } from '../stores/toast'
 import Spinner from '../components/Spinner.vue'
 import Avatar from '../components/Avatar.vue'
 import Modal from '../components/Modal.vue'
+import Icon from '../components/Icon.vue'
 
 const auth = useAuthStore()
 const toast = useToastStore()
@@ -64,7 +65,7 @@ onMounted(load)
   <div>
     <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
       <h1 class="text-2xl font-semibold text-slate-800">Users</h1>
-      <button v-if="auth.user?.is_admin" class="btn-primary" @click="openCreate">+ Add User</button>
+      <button v-if="auth.user?.is_admin" class="btn-primary" @click="openCreate"><Icon name="user-add" class="h-4 w-4" />Add User</button>
     </div>
 
     <div class="mb-4 flex gap-3">
@@ -84,7 +85,7 @@ onMounted(load)
           <p class="text-sm text-slate-400">{{ u.job_title || '—' }}</p>
         </div>
         <span class="text-sm text-slate-500">{{ u.email }}</span>
-        <button v-if="auth.user?.is_admin" class="btn-secondary !py-1 text-xs" @click="openEdit(u)">Edit</button>
+        <button v-if="auth.user?.is_admin" class="btn-secondary !py-1 text-xs" @click="openEdit(u)"><Icon name="edit" class="h-4 w-4" />Edit</button>
       </div>
       <p v-if="!users.length" class="p-8 text-center text-slate-400">No users found.</p>
     </div>

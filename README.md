@@ -95,7 +95,7 @@ Base URL `http://127.0.0.1:8000/api`. All routes except `POST /login` require `A
 | PUT | `/users/{id}` | Update user *(admin only)* |
 | GET | `/dashboard` | Cards + recent tasks + chart data |
 | GET | `/projects` | List (`?search=&status=&per_page=`) |
-| POST | `/projects` | Create |
+| POST | `/projects` | Create (optional `member_ids[]` to add members) |
 | GET | `/projects/{id}` | Show |
 | PUT | `/projects/{id}` | Update |
 | POST | `/projects/{id}/archive` | Toggle archive/active |

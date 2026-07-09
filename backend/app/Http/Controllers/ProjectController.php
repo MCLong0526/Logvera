@@ -31,13 +31,19 @@ class ProjectController extends Controller
     public function store(StoreProjectRequest $request)
     {
         $project = Project::create([
-            ...$request->validated(),
+            ...$request->safe()->except(['member_ids', 'status']),
             'owner_id' => $request->user()->id,
             'status' => $request->input('status', 'active'),
         ]);
 
         // The owner is always a member with the owner role.
         $project->members()->attach($request->user()->id, ['role' => 'owner']);
+
+        // Optional members chosen at creation time (skip the owner / duplicates).
+        collect($request->input('member_ids', []))
+            ->reject(fn ($id) => (int) $id === $request->user()->id)
+            ->unique()
+            ->each(fn ($id) => $project->members()->attach($id, ['role' => 'member']));
 
         return new ProjectResource($project->load('owner')->loadCount(['members', 'tasks']));
     }

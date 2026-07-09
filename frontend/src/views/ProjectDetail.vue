@@ -9,6 +9,7 @@ import Modal from '../components/Modal.vue'
 import Badge from '../components/Badge.vue'
 import Avatar from '../components/Avatar.vue'
 import ProgressBar from '../components/ProgressBar.vue'
+import Icon from '../components/Icon.vue'
 import { formatDate, TYPE, TYPE_OPTIONS, STATUS_OPTIONS, PRIORITY_OPTIONS } from '../utils/labels'
 
 const route = useRoute()
@@ -117,11 +118,11 @@ onMounted(async () => { await load(); loadUsers() })
   <div v-else-if="project">
     <div class="mb-5 flex flex-wrap items-start justify-between gap-3">
       <div>
-        <router-link :to="{ name: 'projects' }" class="text-sm text-slate-400 hover:text-brand-600">← Projects</router-link>
+        <router-link :to="{ name: 'projects' }" class="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-brand-600"><Icon name="back" class="h-4 w-4" />Projects</router-link>
         <h1 class="mt-1 text-2xl font-semibold text-slate-800">{{ project.name }}</h1>
         <p class="text-sm text-slate-500">{{ project.description }}</p>
       </div>
-      <button class="btn-primary" @click="showTaskModal = true">+ New Task</button>
+      <button class="btn-primary" @click="showTaskModal = true"><Icon name="plus" class="h-4 w-4" />New Task</button>
     </div>
 
     <div class="grid grid-cols-1 gap-5 lg:grid-cols-3">
@@ -159,7 +160,7 @@ onMounted(async () => { await load(); loadUsers() })
       <div>
         <div class="mb-2 flex items-center justify-between">
           <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">Members</h2>
-          <button v-if="project.is_owner" class="text-xs text-brand-600 hover:underline" @click="showMemberModal = true">+ Add</button>
+          <button v-if="project.is_owner" class="inline-flex items-center gap-1 text-xs text-brand-600 hover:underline" @click="showMemberModal = true"><Icon name="plus" class="h-3.5 w-3.5" />Add</button>
         </div>
         <div class="card divide-y divide-slate-100">
           <div v-for="m in members" :key="m.id" class="flex items-center gap-3 p-3">
@@ -169,7 +170,7 @@ onMounted(async () => { await load(); loadUsers() })
               <p class="text-xs text-slate-400">{{ m.job_title || m.email }}</p>
             </div>
             <span class="rounded-full bg-slate-100 px-2 py-0.5 text-xs capitalize text-slate-500">{{ m.role }}</span>
-            <button v-if="project.is_owner && m.role !== 'owner'" class="text-slate-300 hover:text-red-500" @click="removeMember(m)">✕</button>
+            <button v-if="project.is_owner && m.role !== 'owner'" class="text-slate-300 hover:text-red-500" @click="removeMember(m)"><Icon name="close" class="h-4 w-4" /></button>
           </div>
         </div>
       </div>
@@ -200,8 +201,8 @@ onMounted(async () => { await load(); loadUsers() })
           <input type="file" multiple class="text-sm" @change="onFiles" />
           <ul v-if="files.length" class="mt-2 space-y-1">
             <li v-for="(f, i) in files" :key="i" class="flex items-center justify-between rounded bg-slate-50 px-2 py-1 text-xs">
-              <span class="truncate">📎 {{ f.name }}</span>
-              <button type="button" class="text-slate-400 hover:text-red-500" @click="removeFile(i)">✕</button>
+              <span class="flex items-center gap-1 truncate"><Icon name="paperclip" class="h-3.5 w-3.5 shrink-0" />{{ f.name }}</span>
+              <button type="button" class="text-slate-400 hover:text-red-500" @click="removeFile(i)"><Icon name="close" class="h-3.5 w-3.5" /></button>
             </li>
           </ul>
         </div>

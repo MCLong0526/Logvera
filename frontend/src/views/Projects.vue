@@ -3,22 +3,26 @@ import { ref, onMounted } from 'vue'
 import http from '../api/http'
 import { useToastStore } from '../stores/toast'
 import { useConfirmStore } from '../stores/confirm'
+import { useAuthStore } from '../stores/auth'
 import Spinner from '../components/Spinner.vue'
 import Modal from '../components/Modal.vue'
 import Avatar from '../components/Avatar.vue'
+import Icon from '../components/Icon.vue'
 import { formatDate } from '../utils/labels'
 
 const toast = useToastStore()
 const confirm = useConfirmStore()
+const auth = useAuthStore()
 
 const loading = ref(true)
 const projects = ref([])
+const users = ref([])
 const search = ref('')
 const statusFilter = ref('')
 
 const showModal = ref(false)
 const editing = ref(null)
-const form = ref({ name: '', description: '', status: 'active' })
+const form = ref({ name: '', description: '', status: 'active', member_ids: [] })
 
 async function load() {
   loading.value = true
@@ -27,9 +31,15 @@ async function load() {
   loading.value = false
 }
 
+// Everyone except me — I'm added as owner automatically.
+async function loadUsers() {
+  const { data } = await http.get('/users')
+  users.value = data.data.filter((u) => u.id !== auth.user?.id)
+}
+
 function openCreate() {
   editing.value = null
-  form.value = { name: '', description: '', status: 'active' }
+  form.value = { name: '', description: '', status: 'active', member_ids: [] }
   showModal.value = true
 }
 
@@ -68,14 +78,14 @@ async function remove(p) {
   load()
 }
 
-onMounted(load)
+onMounted(() => { load(); loadUsers() })
 </script>
 
 <template>
   <div>
     <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
       <h1 class="text-2xl font-semibold text-slate-800">Projects</h1>
-      <button class="btn-primary" @click="openCreate">+ New Project</button>
+      <button class="btn-primary" @click="openCreate"><Icon name="plus" class="h-4 w-4" />New Project</button>
     </div>
 
     <div class="mb-4 flex flex-wrap gap-3">
@@ -104,9 +114,9 @@ onMounted(load)
           <span>{{ p.tasks_count }} tasks · {{ formatDate(p.created_at) }}</span>
         </div>
         <div v-if="p.is_owner" class="mt-3 flex gap-2 border-t border-slate-100 pt-3">
-          <button class="btn-secondary !py-1 text-xs" @click="openEdit(p)">Edit</button>
-          <button class="btn-secondary !py-1 text-xs" @click="archive(p)">{{ p.status === 'archived' ? 'Restore' : 'Archive' }}</button>
-          <button class="btn-danger !py-1 text-xs" @click="remove(p)">Delete</button>
+          <button class="btn-secondary !py-1 text-xs" @click="openEdit(p)"><Icon name="edit" class="h-4 w-4" />Edit</button>
+          <button class="btn-secondary !py-1 text-xs" @click="archive(p)"><Icon name="archive" class="h-4 w-4" />{{ p.status === 'archived' ? 'Restore' : 'Archive' }}</button>
+          <button class="btn-danger !py-1 text-xs" @click="remove(p)"><Icon name="trash" class="h-4 w-4" />Delete</button>
         </div>
       </div>
     </div>
@@ -121,6 +131,19 @@ onMounted(load)
             <option value="active">Active</option>
             <option value="archived">Archived</option>
           </select>
+        </div>
+        <div v-else>
+          <label class="label">Add Members</label>
+          <div class="max-h-44 space-y-1 overflow-y-auto rounded-lg border border-slate-200 p-2">
+            <label v-for="u in users" :key="u.id" class="flex cursor-pointer items-center gap-2 rounded px-2 py-1 text-sm hover:bg-slate-50">
+              <input v-model="form.member_ids" type="checkbox" :value="u.id" class="h-4 w-4 rounded border-slate-300" />
+              <Avatar :name="u.name" size="sm" />
+              <span class="text-slate-700">{{ u.name }}</span>
+              <span class="text-xs text-slate-400">{{ u.email }}</span>
+            </label>
+            <p v-if="!users.length" class="px-2 py-1 text-xs text-slate-400">No other users to add.</p>
+          </div>
+          <p class="mt-1 text-xs text-slate-400">You are added as the owner automatically.</p>
         </div>
         <div class="flex justify-end gap-2">
           <button type="button" class="btn-secondary" @click="showModal = false">Cancel</button>

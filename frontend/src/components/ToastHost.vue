@@ -1,5 +1,6 @@
 <script setup>
 import { useToastStore } from '../stores/toast'
+import Icon from './Icon.vue'
 const toast = useToastStore()
 </script>
 
@@ -12,7 +13,7 @@ const toast = useToastStore()
       :class="t.type === 'error' ? 'bg-red-600' : 'bg-slate-800'"
     >
       <span>{{ t.message }}</span>
-      <button class="opacity-70 hover:opacity-100" @click="toast.remove(t.id)">✕</button>
+      <button class="opacity-70 hover:opacity-100" @click="toast.remove(t.id)"><Icon name="close" class="h-4 w-4" /></button>
     </div>
   </div>
 </template>

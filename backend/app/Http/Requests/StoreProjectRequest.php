@@ -19,6 +19,8 @@ class StoreProjectRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'status' => ['nullable', Rule::in(Project::STATUSES)],
+            'member_ids' => ['nullable', 'array'],
+            'member_ids.*' => ['exists:users,id'],
         ];
     }
 }
